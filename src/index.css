@@ -2,95 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* PlacePredict AI Design System - Glassmorphism with Deep Blue/Purple Theme */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Primary Brand Colors - Deep Blue to Purple Gradient */
+    --brand-primary: 234 89% 74%;     /* Bright Blue #6366F1 */
+    --brand-secondary: 260 84% 69%;   /* Purple #8B5CF6 */
+    --brand-tertiary: 217 92% 76%;    /* Light Blue #3B82F6 */
+    
+    /* Neutral Colors */
+    --background: 220 13% 7%;          /* Deep Dark Blue #0F172A */
+    --background-secondary: 220 13% 9%; /* Slightly Lighter #1E293B */
+    --foreground: 220 9% 95%;          /* Off White #F1F5F9 */
+    --muted: 220 13% 13%;              /* Dark Muted #334155 */
+    --muted-foreground: 220 9% 64%;    /* Medium Gray #64748B */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Card & Surface Colors with Glassmorphism */
+    --card: 220 13% 9% / 0.8;          /* Semi-transparent Dark */
+    --card-foreground: 220 9% 95%;
+    --card-border: 220 13% 20%;        /* Subtle Border */
+    
+    /* Glass Effect Colors */
+    --glass-primary: 234 89% 74% / 0.1;   /* Primary with 10% opacity */
+    --glass-secondary: 260 84% 69% / 0.1; /* Secondary with 10% opacity */
+    --glass-border: 220 9% 95% / 0.1;     /* White with 10% opacity */
+    
+    /* Interactive Colors */
+    --primary: 234 89% 74%;
+    --primary-foreground: 220 13% 7%;
+    --secondary: 220 13% 13%;
+    --secondary-foreground: 220 9% 95%;
+    --accent: 260 84% 69%;
+    --accent-foreground: 220 13% 7%;
+    
+    /* Status Colors */
+    --success: 142 76% 36%;            /* Green #16A34A */
+    --success-foreground: 220 9% 95%;
+    --warning: 38 92% 50%;             /* Orange #F59E0B */
+    --warning-foreground: 220 13% 7%;
+    --destructive: 0 84% 60%;          /* Red #EF4444 */
+    --destructive-foreground: 220 9% 95%;
+    
+    /* UI Element Colors */
+    --popover: 220 13% 9% / 0.95;
+    --popover-foreground: 220 9% 95%;
+    --border: 220 13% 20%;
+    --input: 220 13% 13%;
+    --ring: 234 89% 74%;
+    
+    /* Gradient Definitions */
+    --gradient-primary: linear-gradient(135deg, hsl(234 89% 74%), hsl(260 84% 69%));
+    --gradient-secondary: linear-gradient(135deg, hsl(217 92% 76%), hsl(234 89% 74%));
+    --gradient-tertiary: linear-gradient(135deg, hsl(260 84% 69%), hsl(280 100% 70%));
+    --gradient-subtle: linear-gradient(135deg, hsl(220 13% 9% / 0.8), hsl(220 13% 13% / 0.6));
+    
+    /* Shadow Definitions */
+    --shadow-glass: 0 8px 32px hsl(234 89% 74% / 0.12);
+    --shadow-glow: 0 0 40px hsl(234 89% 74% / 0.15);
+    --shadow-card: 0 4px 24px hsl(220 13% 7% / 0.4);
+    
+    /* Animation Timing */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Sidebar Colors */
+    --sidebar-background: 220 13% 7% / 0.95;
+    --sidebar-foreground: 220 9% 95%;
+    --sidebar-primary: 234 89% 74%;
+    --sidebar-primary-foreground: 220 13% 7%;
+    --sidebar-accent: 220 13% 13% / 0.8;
+    --sidebar-accent-foreground: 220 9% 95%;
+    --sidebar-border: 220 13% 20%;
+    --sidebar-ring: 234 89% 74%;
+    
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Same theme - this is already a dark theme */
+    --background: 220 13% 7%;
+    --foreground: 220 9% 95%;
   }
 }
 
@@ -101,5 +93,104 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background: 
+      radial-gradient(circle at 25% 25%, hsl(234 89% 74% / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, hsl(260 84% 69% / 0.05) 0%, transparent 50%),
+      hsl(var(--background));
+    min-height: 100vh;
   }
+
+  /* Glassmorphism Base Classes */
+  .glass-card {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card)),
+      hsl(220 13% 11% / 0.7)
+    );
+    backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: var(--shadow-glass);
+  }
+  
+  .glass-nav {
+    background: hsl(220 13% 9% / 0.8);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid hsl(var(--glass-border));
+  }
+  
+  /* Interactive Gradient Backgrounds */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  
+  .gradient-tertiary {
+    background: var(--gradient-tertiary);
+  }
+  
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* Glow Effects */
+  .glow-primary {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .glow-hover:hover {
+    box-shadow: var(--shadow-glow);
+    transition: var(--transition-smooth);
+  }
+  
+  /* Animation Classes */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite alternate;
+  }
+  
+  /* Smooth Transitions */
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+}
+
+@layer components {
+  /* Story Link Animation */
+  .story-link {
+    @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+  }
+  
+  /* Hover Scale Animation */
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  /* Interactive Card Hover */
+  .card-hover {
+    @apply hover:shadow-2xl hover:-translate-y-1 transition-all duration-300;
+  }
+}
+
+/* Custom Keyframes */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 20px hsl(234 89% 74% / 0.1); }
+  100% { box-shadow: 0 0 40px hsl(234 89% 74% / 0.3); }
 }

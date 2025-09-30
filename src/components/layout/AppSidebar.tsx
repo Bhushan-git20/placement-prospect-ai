@@ -40,6 +40,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home, roles: ["admin", "faculty", "recruiter", "user"] },
+  { title: "User Management", url: "/users", icon: Settings, roles: ["admin"] },
   { title: "Student Profiles", url: "/students", icon: Users, roles: ["admin", "faculty"] },
   { title: "Job Market", url: "/jobs", icon: Briefcase, roles: ["admin", "recruiter"] },
   { title: "Skill Analytics", url: "/skills", icon: BarChart3, roles: ["admin", "faculty"] },

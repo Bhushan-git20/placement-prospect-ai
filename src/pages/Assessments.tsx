@@ -17,6 +17,7 @@ import {
   BarChart3
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { TakeTestDialog } from "@/components/TakeTestDialog";
 
 interface Assessment {
   id: string;
@@ -41,6 +42,8 @@ export default function Assessments() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [userRole, setUserRole] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+  const [showTestDialog, setShowTestDialog] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -102,6 +105,11 @@ export default function Assessments() {
   const totalTests = assessments.length;
   const passedTests = assessments.filter(a => (a.score || 0) >= 60).length;
 
+  const handleStartTest = (category: string) => {
+    setSelectedCategory(category);
+    setShowTestDialog(true);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -127,12 +135,19 @@ export default function Assessments() {
           </p>
         </div>
         {userRole === 'user' && (
-          <Button className="gradient-primary glow-hover">
+          <Button className="gradient-primary glow-hover" onClick={() => handleStartTest("Technical Skills")}>
             <Play className="w-4 h-4 mr-2" />
             Start New Test
           </Button>
         )}
       </div>
+
+      <TakeTestDialog
+        open={showTestDialog}
+        onOpenChange={setShowTestDialog}
+        category={selectedCategory}
+        onTestCompleted={fetchUserAndAssessments}
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -182,10 +197,14 @@ export default function Assessments() {
                 <Card key={idx} className="border-2 border-primary/20 hover:border-primary/40 transition-smooth cursor-pointer">
                   <CardHeader>
                     <CardTitle className="text-lg">{category}</CardTitle>
-                    <CardDescription>30 questions • 45 minutes</CardDescription>
+                    <CardDescription>5 questions • 30 minutes</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full" variant="outline">
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      onClick={() => handleStartTest(category)}
+                    >
                       <Play className="w-4 h-4 mr-2" />
                       Start Test
                     </Button>

@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   Users, 
   Search, 
@@ -17,7 +20,9 @@ import {
   MapPin,
   Briefcase,
   Target,
-  BookOpen
+  BookOpen,
+  Plus,
+  Loader2
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -47,11 +52,40 @@ export default function Students() {
   const [searchQuery, setSearchQuery] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [userRole, setUserRole] = useState("");
   const { toast } = useToast();
 
+  const [newStudent, setNewStudent] = useState({
+    student_id: "",
+    name: "",
+    email: "",
+    department: "",
+    year: 1,
+    cgpa: 0,
+    skills: "",
+    university: "",
+    preferred_roles: "",
+    preferred_locations: ""
+  });
+
   useEffect(() => {
+    fetchUserRole();
     fetchStudents();
   }, []);
+
+  const fetchUserRole = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      setUserRole(profile?.role || '');
+    }
+  };
 
   useEffect(() => {
     filterStudents();
@@ -110,6 +144,51 @@ export default function Students() {
 
   const departments = [...new Set(students.map(s => s.department))];
 
+  const handleAddStudent = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase.from('students').insert({
+        student_id: newStudent.student_id,
+        name: newStudent.name,
+        email: newStudent.email,
+        department: newStudent.department,
+        year: newStudent.year,
+        cgpa: newStudent.cgpa,
+        skills: newStudent.skills.split(',').map(s => s.trim()).filter(Boolean),
+        university: newStudent.university,
+        preferred_roles: newStudent.preferred_roles.split(',').map(s => s.trim()).filter(Boolean),
+        preferred_locations: newStudent.preferred_locations.split(',').map(s => s.trim()).filter(Boolean),
+        placement_status: 'not_placed',
+        strengths: [],
+        skill_gaps: [],
+        recommendations: [],
+        target_companies: []
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Student added successfully",
+        description: `${newStudent.name} has been added to the system.`,
+      });
+
+      setShowAddDialog(false);
+      setNewStudent({
+        student_id: "", name: "", email: "", department: "", year: 1,
+        cgpa: 0, skills: "", university: "", preferred_roles: "", preferred_locations: ""
+      });
+      fetchStudents();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add student",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -124,14 +203,155 @@ export default function Students() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold gradient-text flex items-center gap-3">
-          <Users className="w-8 h-8" />
-          Student Management
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Manage and track student profiles, placement readiness, and career progress
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold gradient-text flex items-center gap-3">
+            <Users className="w-8 h-8" />
+            Student Management
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Manage and track student profiles, placement readiness, and career progress
+          </p>
+        </div>
+        {(userRole === 'admin' || userRole === 'faculty') && (
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button className="gradient-primary glow-hover">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Student
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add New Student</DialogTitle>
+                <DialogDescription>Enter student details to add them to the system</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="student_id">Student ID *</Label>
+                    <Input
+                      id="student_id"
+                      value={newStudent.student_id}
+                      onChange={(e) => setNewStudent({...newStudent, student_id: e.target.value})}
+                      placeholder="e.g., ST2024001"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name *</Label>
+                    <Input
+                      id="name"
+                      value={newStudent.name}
+                      onChange={(e) => setNewStudent({...newStudent, name: e.target.value})}
+                      placeholder="John Doe"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newStudent.email}
+                    onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
+                    placeholder="john@university.edu"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="department">Department *</Label>
+                    <Input
+                      id="department"
+                      value={newStudent.department}
+                      onChange={(e) => setNewStudent({...newStudent, department: e.target.value})}
+                      placeholder="Computer Science"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="university">University *</Label>
+                    <Input
+                      id="university"
+                      value={newStudent.university}
+                      onChange={(e) => setNewStudent({...newStudent, university: e.target.value})}
+                      placeholder="ABC University"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="year">Year *</Label>
+                    <Select
+                      value={newStudent.year.toString()}
+                      onValueChange={(value) => setNewStudent({...newStudent, year: parseInt(value)})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Year 1</SelectItem>
+                        <SelectItem value="2">Year 2</SelectItem>
+                        <SelectItem value="3">Year 3</SelectItem>
+                        <SelectItem value="4">Year 4</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cgpa">CGPA *</Label>
+                    <Input
+                      id="cgpa"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="10"
+                      value={newStudent.cgpa}
+                      onChange={(e) => setNewStudent({...newStudent, cgpa: parseFloat(e.target.value)})}
+                      placeholder="8.5"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="skills">Skills (comma-separated)</Label>
+                  <Textarea
+                    id="skills"
+                    value={newStudent.skills}
+                    onChange={(e) => setNewStudent({...newStudent, skills: e.target.value})}
+                    placeholder="React, Python, Machine Learning"
+                    rows={2}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="preferred_roles">Preferred Roles (comma-separated)</Label>
+                  <Input
+                    id="preferred_roles"
+                    value={newStudent.preferred_roles}
+                    onChange={(e) => setNewStudent({...newStudent, preferred_roles: e.target.value})}
+                    placeholder="Software Engineer, Data Analyst"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="preferred_locations">Preferred Locations (comma-separated)</Label>
+                  <Input
+                    id="preferred_locations"
+                    value={newStudent.preferred_locations}
+                    onChange={(e) => setNewStudent({...newStudent, preferred_locations: e.target.value})}
+                    placeholder="Bangalore, Mumbai, Remote"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setShowAddDialog(false)}>Cancel</Button>
+                <Button 
+                  onClick={handleAddStudent} 
+                  disabled={isSaving || !newStudent.student_id || !newStudent.name || !newStudent.email}
+                  className="gradient-primary"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Add Student
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Filters */}

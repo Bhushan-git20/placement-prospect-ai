@@ -15,9 +15,11 @@ import {
   TrendingUp,
   Users,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Plus
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AddJobDialog } from "@/components/AddJobDialog";
 
 interface JobPosting {
   id: string;
@@ -44,7 +46,26 @@ export default function Jobs() {
   const [searchQuery, setSearchQuery] = useState("");
   const [industryFilter, setIndustryFilter] = useState("all");
   const [experienceFilter, setExperienceFilter] = useState("all");
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [userRole, setUserRole] = useState("");
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchUserRole();
+    fetchJobs();
+  }, []);
+
+  const fetchUserRole = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      setUserRole(profile?.role || '');
+    }
+  };
 
   useEffect(() => {
     fetchJobs();
@@ -122,15 +143,29 @@ export default function Jobs() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold gradient-text flex items-center gap-3">
-          <Briefcase className="w-8 h-8" />
-          Job Market
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Explore current job opportunities and market trends
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold gradient-text flex items-center gap-3">
+            <Briefcase className="w-8 h-8" />
+            Job Market
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Explore current job opportunities and market trends
+          </p>
+        </div>
+        {(userRole === 'admin' || userRole === 'recruiter') && (
+          <Button className="gradient-primary glow-hover" onClick={() => setShowAddDialog(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Post Job
+          </Button>
+        )}
       </div>
+
+      <AddJobDialog 
+        open={showAddDialog} 
+        onOpenChange={setShowAddDialog}
+        onJobAdded={fetchJobs}
+      />
 
       {/* Filters */}
       <Card className="glass-card">

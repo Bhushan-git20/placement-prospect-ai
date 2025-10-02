@@ -16,6 +16,7 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 import {
   Sidebar,
   SidebarContent,
@@ -65,11 +66,18 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
+  const { role } = useUserRole();
   const currentPath = location.pathname;
 
   useEffect(() => {
     fetchUserProfile();
   }, []);
+
+  useEffect(() => {
+    if (user && role) {
+      setUser({ ...user, role });
+    }
+  }, [role]);
 
   const fetchUserProfile = async () => {
     try {
@@ -77,12 +85,12 @@ export function AppSidebar() {
       if (authUser) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('*')
+          .select('id, full_name, email, avatar_url')
           .eq('id', authUser.id)
           .single();
         
-        if (profile) {
-          setUser(profile);
+        if (profile && role) {
+          setUser({ ...profile, role });
         }
       }
     } catch (error) {

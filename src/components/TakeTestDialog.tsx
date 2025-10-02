@@ -109,7 +109,7 @@ const questionBank: Record<string, Question[]> = {
 export function TakeTestDialog({ open, onOpenChange, category, onTestCompleted }: TakeTestDialogProps) {
   const { toast } = useToast();
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<number[]>([]);
+  const [answers, setAnswers] = useState<(number | undefined)[]>([]);
   const [timeLeft, setTimeLeft] = useState(1800); // 30 minutes in seconds
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [testStarted, setTestStarted] = useState(false);
@@ -350,7 +350,10 @@ export function TakeTestDialog({ open, onOpenChange, category, onTestCompleted }
         <div className="space-y-6 py-4">
           <div className="space-y-4">
             <h3 className="text-lg font-medium">{questions[currentQuestion].question}</h3>
-            <RadioGroup value={answers[currentQuestion]?.toString()} onValueChange={(value) => handleAnswerSelect(parseInt(value))}>
+            <RadioGroup 
+              value={answers[currentQuestion] !== undefined ? answers[currentQuestion]!.toString() : undefined} 
+              onValueChange={(value) => handleAnswerSelect(parseInt(value))}
+            >
               {questions[currentQuestion].options.map((option, index) => (
                 <div key={index} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-secondary/50 transition-smooth">
                   <RadioGroupItem value={index.toString()} id={`option-${index}`} />

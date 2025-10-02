@@ -12,6 +12,9 @@ import Students from "./pages/Students";
 import Jobs from "./pages/Jobs";
 import Skills from "./pages/Skills";
 import Assessments from "./pages/Assessments";
+import CareerCoach from "./pages/CareerCoach";
+import Candidates from "./pages/Candidates";
+import DataManagement from "./pages/DataManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +35,9 @@ const App = () => (
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/skills" element={<Skills />} />
             <Route path="/assessments" element={<Assessments />} />
+            <Route path="/career-coach" element={<CareerCoach />} />
+            <Route path="/candidates" element={<Candidates />} />
+            <Route path="/data" element={<DataManagement />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -122,17 +122,30 @@ export default function Auth() {
     try {
       const validatedData = signUpSchema.parse(signUpForm);
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: validatedData.email,
         password: validatedData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
             full_name: validatedData.full_name,
-            role: validatedData.role,
           }
         }
       });
+
+      // Insert role into user_roles table
+      if (data.user && !error) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: data.user.id,
+            role: validatedData.role
+          });
+
+        if (roleError) {
+          console.error('Error assigning role:', roleError);
+        }
+      }
 
       if (error) {
         if (error.message.includes('User already registered')) {

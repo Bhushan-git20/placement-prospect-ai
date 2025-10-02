@@ -34,6 +34,7 @@ export type Database = {
           time_limit_minutes: number | null
           time_taken_minutes: number | null
           total_questions: number | null
+          user_id: string | null
         }
         Insert: {
           areas_of_improvement?: string[] | null
@@ -54,6 +55,7 @@ export type Database = {
           time_limit_minutes?: number | null
           time_taken_minutes?: number | null
           total_questions?: number | null
+          user_id?: string | null
         }
         Update: {
           areas_of_improvement?: string[] | null
@@ -74,6 +76,7 @@ export type Database = {
           time_limit_minutes?: number | null
           time_taken_minutes?: number | null
           total_questions?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }

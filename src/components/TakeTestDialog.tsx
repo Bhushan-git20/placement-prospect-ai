@@ -199,7 +199,11 @@ export function TakeTestDialog({ open, onOpenChange, category, onTestCompleted }
     const correctAnswers = answers.filter((answer, index) => answer === questions[index].correctAnswer).length;
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       const { error } = await supabase.from('assessments').insert({
+        user_id: user.id,
         student_name: studentInfo.name,
         student_id: studentInfo.studentId,
         assessment_type: `${category} Assessment`,

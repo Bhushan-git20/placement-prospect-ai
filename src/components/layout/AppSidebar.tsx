@@ -66,7 +66,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
-  const { role } = useUserRole();
+  const { role, isLoading: roleLoading } = useUserRole();
   const currentPath = location.pathname;
 
   useEffect(() => {
@@ -74,10 +74,10 @@ export function AppSidebar() {
   }, []);
 
   useEffect(() => {
-    if (user && role) {
+    if (user && role && !roleLoading) {
       setUser({ ...user, role });
     }
-  }, [role]);
+  }, [role, roleLoading, user?.id]);
 
   const fetchUserProfile = async () => {
     try {
@@ -89,8 +89,8 @@ export function AppSidebar() {
           .eq('id', authUser.id)
           .single();
         
-        if (profile && role) {
-          setUser({ ...profile, role });
+        if (profile) {
+          setUser({ ...profile, role: role || 'user' });
         }
       }
     } catch (error) {
@@ -118,9 +118,10 @@ export function AppSidebar() {
 
   const isActive = (path: string) => currentPath === path;
   
-  const filteredMenuItems = menuItems.filter(item => 
-    user?.role && item.roles.includes(user.role)
-  );
+  const filteredMenuItems = menuItems.filter(item => {
+    const userRole = user?.role || role || 'user';
+    return item.roles.includes(userRole);
+  });
 
   const getNavClassName = (path: string) => {
     return isActive(path) 

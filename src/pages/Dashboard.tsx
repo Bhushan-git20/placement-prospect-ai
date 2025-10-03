@@ -87,12 +87,22 @@ export default function Dashboard() {
       // Get user profile
       const { data: profile } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, full_name, email, avatar_url')
         .eq('id', authUser.id)
         .single();
 
+      // Get user role from user_roles table
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', authUser.id)
+        .single();
+
       if (profile) {
-        setUser(profile);
+        setUser({
+          ...profile,
+          role: roleData?.role || 'user'
+        });
       }
 
       // Get dashboard stats

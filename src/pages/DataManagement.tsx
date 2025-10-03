@@ -4,20 +4,35 @@ import { Button } from "@/components/ui/button";
 import { Upload, Download, Database, FileSpreadsheet, Users, Briefcase, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function DataManagement() {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-  const handleFileUpload = async (type: string) => {
+  const handleImportClick = (categoryTitle: string) => {
+    setSelectedCategory(categoryTitle);
+    setIsDialogOpen(true);
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsUploading(true);
-    // TODO: Implement file upload logic
+    
+    // TODO: Implement actual data import logic
     setTimeout(() => {
       toast({
-        title: "Upload successful",
-        description: `${type} data has been imported successfully.`,
+        title: "Import successful",
+        description: `${selectedCategory} data has been imported successfully.`,
       });
       setIsUploading(false);
+      setIsDialogOpen(false);
     }, 2000);
   };
 
@@ -94,15 +109,260 @@ export default function DataManagement() {
                       <h3 className="font-semibold mb-2">{category.title}</h3>
                       <p className="text-sm text-muted-foreground mb-4">{category.description}</p>
                       <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => handleFileUpload(category.title)}
-                          disabled={isUploading}
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          Upload File
-                        </Button>
+                        <Dialog open={isDialogOpen && selectedCategory === category.title} onOpenChange={(open) => {
+                          setIsDialogOpen(open);
+                          if (!open) setSelectedCategory("");
+                        }}>
+                          <DialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => handleImportClick(category.title)}
+                              disabled={isUploading}
+                            >
+                              <Upload className="w-4 h-4 mr-2" />
+                              Import Data
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Import {category.title}</DialogTitle>
+                              <DialogDescription>
+                                Fill in the details below to import {category.title.toLowerCase()}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <form onSubmit={handleFormSubmit} className="space-y-4">
+                              {category.title === "Student Data" && (
+                                <>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="studentName">Student Name</Label>
+                                      <Input id="studentName" placeholder="Enter student name" required />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="studentId">Student ID</Label>
+                                      <Input id="studentId" placeholder="Enter student ID" required />
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="email">Email</Label>
+                                      <Input id="email" type="email" placeholder="student@example.com" required />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="department">Department</Label>
+                                      <Select required>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select department" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="cs">Computer Science</SelectItem>
+                                          <SelectItem value="it">Information Technology</SelectItem>
+                                          <SelectItem value="ece">Electronics</SelectItem>
+                                          <SelectItem value="mech">Mechanical</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="year">Year</Label>
+                                      <Select required>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select year" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="1">First Year</SelectItem>
+                                          <SelectItem value="2">Second Year</SelectItem>
+                                          <SelectItem value="3">Third Year</SelectItem>
+                                          <SelectItem value="4">Fourth Year</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="cgpa">CGPA</Label>
+                                      <Input id="cgpa" type="number" step="0.01" placeholder="8.5" required />
+                                    </div>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="skills">Skills (comma-separated)</Label>
+                                    <Input id="skills" placeholder="Python, Java, React" required />
+                                  </div>
+                                </>
+                              )}
+                              
+                              {category.title === "Job Postings" && (
+                                <>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="jobTitle">Job Title</Label>
+                                    <Input id="jobTitle" placeholder="Software Engineer" required />
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="company">Company</Label>
+                                      <Input id="company" placeholder="Company name" required />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="location">Location</Label>
+                                      <Input id="location" placeholder="City, Country" required />
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="jobType">Job Type</Label>
+                                      <Select required>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="fulltime">Full-time</SelectItem>
+                                          <SelectItem value="parttime">Part-time</SelectItem>
+                                          <SelectItem value="contract">Contract</SelectItem>
+                                          <SelectItem value="internship">Internship</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="experienceLevel">Experience Level</Label>
+                                      <Select required>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select level" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="entry">Entry Level</SelectItem>
+                                          <SelectItem value="mid">Mid Level</SelectItem>
+                                          <SelectItem value="senior">Senior Level</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="salaryMin">Minimum Salary</Label>
+                                      <Input id="salaryMin" type="number" placeholder="50000" />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="salaryMax">Maximum Salary</Label>
+                                      <Input id="salaryMax" type="number" placeholder="80000" />
+                                    </div>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="requiredSkills">Required Skills (comma-separated)</Label>
+                                    <Input id="requiredSkills" placeholder="JavaScript, React, Node.js" required />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="description">Job Description</Label>
+                                    <Textarea id="description" placeholder="Enter job description..." rows={4} />
+                                  </div>
+                                </>
+                              )}
+                              
+                              {category.title === "Skill Analytics" && (
+                                <>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="skillName">Skill Name</Label>
+                                    <Input id="skillName" placeholder="React" required />
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="category">Category</Label>
+                                      <Select required>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select category" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="technical">Technical</SelectItem>
+                                          <SelectItem value="soft">Soft Skills</SelectItem>
+                                          <SelectItem value="language">Language</SelectItem>
+                                          <SelectItem value="tool">Tool/Platform</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="trend">Trend</Label>
+                                      <Select required>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select trend" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="Rising">Rising</SelectItem>
+                                          <SelectItem value="Stable">Stable</SelectItem>
+                                          <SelectItem value="Declining">Declining</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="currentDemand">Current Demand Score</Label>
+                                      <Input id="currentDemand" type="number" placeholder="75" required />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="predictedDemand">Predicted Demand Score</Label>
+                                      <Input id="predictedDemand" type="number" placeholder="85" />
+                                    </div>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="growthRate">Growth Rate (%)</Label>
+                                    <Input id="growthRate" type="number" step="0.1" placeholder="12.5" />
+                                  </div>
+                                </>
+                              )}
+                              
+                              {category.title === "Assessment Results" && (
+                                <>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="assessmentStudent">Student Name</Label>
+                                      <Input id="assessmentStudent" placeholder="Student name" required />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="assessmentType">Assessment Type</Label>
+                                      <Select required>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="technical">Technical</SelectItem>
+                                          <SelectItem value="aptitude">Aptitude</SelectItem>
+                                          <SelectItem value="communication">Communication</SelectItem>
+                                          <SelectItem value="coding">Coding</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="score">Score</Label>
+                                      <Input id="score" type="number" placeholder="85" required />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="totalQuestions">Total Questions</Label>
+                                      <Input id="totalQuestions" type="number" placeholder="100" required />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="timeTaken">Time Taken (min)</Label>
+                                      <Input id="timeTaken" type="number" placeholder="45" />
+                                    </div>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="feedback">Feedback</Label>
+                                    <Textarea id="feedback" placeholder="Enter assessment feedback..." rows={3} />
+                                  </div>
+                                </>
+                              )}
+                              
+                              <div className="flex justify-end gap-2 pt-4">
+                                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                                  Cancel
+                                </Button>
+                                <Button type="submit" disabled={isUploading}>
+                                  {isUploading ? "Importing..." : "Import Data"}
+                                </Button>
+                              </div>
+                            </form>
+                          </DialogContent>
+                        </Dialog>
                         <Button size="sm" variant="outline">
                           Template
                         </Button>

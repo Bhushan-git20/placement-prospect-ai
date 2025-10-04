@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function DataManagement() {
   const { toast } = useToast();
@@ -25,15 +26,88 @@ export default function DataManagement() {
     e.preventDefault();
     setIsUploading(true);
     
-    // TODO: Implement actual data import logic
-    setTimeout(() => {
+    try {
+      const formData = new FormData(e.currentTarget);
+      const data: any = {};
+      formData.forEach((value, key) => data[key] = value);
+
+      let result;
+      switch (selectedCategory) {
+        case "Student Data":
+          result = await supabase.from('students').insert({
+            student_id: data.studentId,
+            name: data.studentName,
+            email: data.email,
+            university: "Default University",
+            department: data.department || "Computer Science",
+            year: parseInt(data.year) || 1,
+            cgpa: parseFloat(data.cgpa) || 0,
+            skills: data.skills?.split(',').map((s: string) => s.trim()) || [],
+            preferred_roles: [],
+            preferred_locations: []
+          });
+          break;
+
+        case "Job Postings":
+          result = await supabase.from('job_postings').insert({
+            title: data.jobTitle,
+            company: data.company,
+            location: data.location,
+            job_type: data.jobType || "Full-time",
+            experience_level: data.experienceLevel || "Entry Level",
+            industry: "Technology",
+            required_skills: data.requiredSkills?.split(',').map((s: string) => s.trim()) || [],
+            preferred_skills: [],
+            salary_min: data.salaryMin ? parseInt(data.salaryMin) : null,
+            salary_max: data.salaryMax ? parseInt(data.salaryMax) : null,
+            description: data.description
+          });
+          break;
+
+        case "Skill Analytics":
+          result = await supabase.from('skill_analysis').insert({
+            skill_name: data.skillName,
+            category: data.category || "Technical",
+            trend: data.trend || "Stable",
+            current_demand: parseInt(data.currentDemand) || 0,
+            predicted_demand: data.predictedDemand ? parseInt(data.predictedDemand) : null,
+            growth_rate: data.growthRate ? parseFloat(data.growthRate) : null,
+            industry_focus: []
+          });
+          break;
+
+        case "Assessment Results":
+          const { data: { user } } = await supabase.auth.getUser();
+          result = await supabase.from('assessments').insert({
+            user_id: user?.id,
+            student_name: data.assessmentStudent,
+            student_id: data.studentId || "UNKNOWN",
+            assessment_type: data.assessmentType || "Technical",
+            test_category: data.testCategory || "General",
+            score: 0,
+            total_questions: 0,
+            correct_answers: 0
+          });
+          break;
+      }
+
+      if (result?.error) throw result.error;
+
       toast({
         title: "Import successful",
         description: `${selectedCategory} data has been imported successfully.`,
       });
-      setIsUploading(false);
       setIsDialogOpen(false);
-    }, 2000);
+    } catch (error: any) {
+      console.error('Import error:', error);
+      toast({
+        title: "Import failed",
+        description: error.message || "Failed to import data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleExport = (type: string) => {

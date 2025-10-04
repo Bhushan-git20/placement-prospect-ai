@@ -22,8 +22,10 @@ import {
   Target,
   BookOpen,
   Plus,
-  Loader2
+  Loader2,
+  GitMerge
 } from "lucide-react";
+import { StudentJobMatchDialog } from "@/components/StudentJobMatchDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Student {
@@ -53,6 +55,7 @@ export default function Students() {
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showMatchDialog, setShowMatchDialog] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [userRole, setUserRole] = useState("");
   const { toast } = useToast();
@@ -214,13 +217,18 @@ export default function Students() {
           </p>
         </div>
         {(userRole === 'admin' || userRole === 'faculty') && (
-          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-            <DialogTrigger asChild>
-              <Button className="gradient-primary glow-hover">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Student
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowMatchDialog(true)}>
+              <GitMerge className="w-4 h-4 mr-2" />
+              Match Students
+            </Button>
+            <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+              <DialogTrigger asChild>
+                <Button className="gradient-primary glow-hover">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Student
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Student</DialogTitle>
@@ -351,7 +359,13 @@ export default function Students() {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         )}
+
+      <StudentJobMatchDialog
+        open={showMatchDialog}
+        onOpenChange={setShowMatchDialog}
+      />
       </div>
 
       {/* Filters */}

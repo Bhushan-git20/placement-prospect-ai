@@ -14,10 +14,12 @@ import {
   CheckCircle,
   XCircle,
   Play,
-  BarChart3
+  BarChart3,
+  Plus
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { TakeTestDialog } from "@/components/TakeTestDialog";
+import { CreateAssessmentDialog } from "@/components/CreateAssessmentDialog";
 
 interface Assessment {
   id: string;
@@ -43,6 +45,7 @@ export default function Assessments() {
   const [userRole, setUserRole] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [showTestDialog, setShowTestDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const { toast } = useToast();
 
@@ -134,12 +137,20 @@ export default function Assessments() {
             Take tests, track progress, and improve your placement readiness
           </p>
         </div>
-        {userRole === 'user' && (
-          <Button className="gradient-primary glow-hover" onClick={() => handleStartTest("Technical Skills")}>
-            <Play className="w-4 h-4 mr-2" />
-            Start New Test
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {userRole === 'user' && (
+            <Button className="gradient-primary glow-hover" onClick={() => handleStartTest("Technical Skills")}>
+              <Play className="w-4 h-4 mr-2" />
+              Start New Test
+            </Button>
+          )}
+          {(userRole === 'admin' || userRole === 'faculty') && (
+            <Button variant="outline" onClick={() => setShowCreateDialog(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Assessment
+            </Button>
+          )}
+        </div>
       </div>
 
       <TakeTestDialog
@@ -147,6 +158,11 @@ export default function Assessments() {
         onOpenChange={setShowTestDialog}
         category={selectedCategory}
         onTestCompleted={fetchUserAndAssessments}
+      />
+
+      <CreateAssessmentDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
       />
 
       {/* Stats */}

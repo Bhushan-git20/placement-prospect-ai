@@ -45,6 +45,7 @@ interface Student {
   strengths: string[];
   skill_gaps: string[];
   preferred_roles: string[];
+  resume_url: string | null;
 }
 
 export default function Students() {
@@ -72,6 +73,8 @@ export default function Students() {
     preferred_roles: "",
     preferred_locations: ""
   });
+
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   useEffect(() => {
     fetchUserRole();
@@ -150,6 +153,27 @@ export default function Students() {
   const handleAddStudent = async () => {
     setIsSaving(true);
     try {
+      let resume_url = null;
+
+      // Upload resume if provided
+      if (resumeFile) {
+        const fileExt = resumeFile.name.split('.').pop();
+        const fileName = `${newStudent.student_id}-${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError, data } = await supabase.storage
+          .from('resumes')
+          .upload(filePath, resumeFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('resumes')
+          .getPublicUrl(filePath);
+
+        resume_url = publicUrl;
+      }
+
       const { error } = await supabase.from('students').insert({
         student_id: newStudent.student_id,
         name: newStudent.name,
@@ -165,7 +189,8 @@ export default function Students() {
         strengths: [],
         skill_gaps: [],
         recommendations: [],
-        target_companies: []
+        target_companies: [],
+        resume_url
       });
 
       if (error) throw error;
@@ -180,6 +205,7 @@ export default function Students() {
         student_id: "", name: "", email: "", department: "", year: 1,
         cgpa: 0, skills: "", university: "", preferred_roles: "", preferred_locations: ""
       });
+      setResumeFile(null);
       fetchStudents();
     } catch (error: any) {
       toast({
@@ -344,6 +370,20 @@ export default function Students() {
                     onChange={(e) => setNewStudent({...newStudent, preferred_locations: e.target.value})}
                     placeholder="Bangalore, Mumbai, Remote"
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="resume">Resume (PDF/DOC)</Label>
+                  <Input
+                    id="resume"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
+                  />
+                  {resumeFile && (
+                    <p className="text-xs text-muted-foreground">
+                      Selected: {resumeFile.name}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex justify-end gap-3">
@@ -537,12 +577,28 @@ export default function Students() {
                 </div>
               )}
 
-              {/* Contact */}
-              <div className="pt-3 border-t border-border">
+              {/* Contact & Resume */}
+              <div className="pt-3 border-t border-border space-y-2">
                 <Button variant="outline" className="w-full" size="sm">
                   <Mail className="w-4 h-4 mr-2" />
                   {student.email}
                 </Button>
+                {student.resume_url ? (
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    size="sm"
+                    onClick={() => window.open(student.resume_url!, '_blank')}
+                  >
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    View Resume
+                  </Button>
+                ) : (
+                  <Button variant="outline" className="w-full" size="sm" disabled>
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    No Resume
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

@@ -11,7 +11,8 @@ import {
   Target,
   Award,
   LogOut,
-  User
+  User,
+  GraduationCap
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +47,7 @@ const menuItems: MenuItem[] = [
   { title: "Job Market", url: "/jobs", icon: Briefcase, roles: ["admin", "recruiter"] },
   { title: "Skill Analytics", url: "/skills", icon: BarChart3, roles: ["admin", "faculty"] },
   { title: "Practice Center", url: "/assessments", icon: BookOpen, roles: ["admin", "faculty", "user"] },
+  { title: "My Assessments", url: "/my-assessments", icon: GraduationCap, roles: ["user"] },
   { title: "AI Career Coach", url: "/career-coach", icon: MessageSquare, roles: ["admin", "user"] },
   { title: "Candidate Search", url: "/candidates", icon: Target, roles: ["admin", "recruiter"] },
   { title: "Data Management", url: "/data", icon: Database, roles: ["admin", "faculty"] },

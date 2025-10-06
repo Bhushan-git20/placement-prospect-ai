@@ -1,5 +1,17 @@
 project_id = "luplkmdzkfscsqojpvxu"
 
+[functions.resume-parser]
+verify_jwt = true
+
+[functions.skill-gap-analysis]
+verify_jwt = true
+
+[functions.placement-readiness]
+verify_jwt = true
+
+[functions.job-fit-scoring]
+verify_jwt = true
+
 [api]
 enabled = true
 port = 54321

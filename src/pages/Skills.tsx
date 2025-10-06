@@ -259,7 +259,7 @@ export default function Skills() {
                     </span>
                     <span className="flex items-center gap-1">
                       <TrendingUp className="w-4 h-4" />
-                      Growth: +{skill.growth_rate.toFixed(1)}%
+                      Growth: +{skill.growth_rate?.toFixed(1) ?? '0'}%
                     </span>
                     <span className="flex items-center gap-1">
                       <Award className="w-4 h-4" />
@@ -270,7 +270,7 @@ export default function Skills() {
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground">Salary Impact</p>
                   <p className="text-lg font-bold gradient-text">
-                    +₹{skill.average_salary_impact.toFixed(1)}L
+                    +₹{skill.average_salary_impact?.toFixed(1) ?? '0'}L
                   </p>
                 </div>
               </div>
@@ -320,7 +320,7 @@ export default function Skills() {
                 </div>
                 <Badge className={getTrendColor(skill.trend)}>
                   {getTrendIcon(skill.trend)}
-                  <span className="ml-1">+{skill.growth_rate.toFixed(0)}%</span>
+                  <span className="ml-1">+{skill.growth_rate?.toFixed(0) ?? '0'}%</span>
                 </Badge>
               </div>
             ))}

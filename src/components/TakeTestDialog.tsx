@@ -22,237 +22,349 @@ interface Question {
   correctAnswer: number;
 }
 
-const questionBank: Record<string, Question[]> = {
-  "Technical Skills": [
-    {
-      question: "What does HTML stand for?",
-      options: ["Hyper Text Markup Language", "High Tech Modern Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language"],
-      correctAnswer: 0
-    },
-    {
-      question: "Which of the following is NOT a programming language?",
-      options: ["Python", "JavaScript", "HTML", "Java"],
-      correctAnswer: 2
-    },
-    {
-      question: "What is the time complexity of binary search?",
-      options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
-      correctAnswer: 1
-    },
-    {
-      question: "Which data structure uses LIFO?",
-      options: ["Queue", "Stack", "Array", "Linked List"],
-      correctAnswer: 1
-    },
-    {
-      question: "What does API stand for?",
-      options: ["Application Programming Interface", "Advanced Programming Interface", "Application Process Integration", "Automated Programming Interface"],
-      correctAnswer: 0
-    },
-    {
-      question: "Which language is known for building Android apps?",
-      options: ["Swift", "Kotlin", "Ruby", "PHP"],
-      correctAnswer: 1
-    },
-    {
-      question: "What is the output of 2**3 in Python?",
-      options: ["5", "6", "8", "9"],
-      correctAnswer: 2
-    },
-    {
-      question: "Which protocol is used for secure communication over the internet?",
-      options: ["HTTP", "FTP", "HTTPS", "SMTP"],
-      correctAnswer: 2
-    }
-  ],
-  "DSA": [
-    {
-      question: "What is the worst-case time complexity of Quick Sort?",
-      options: ["O(n log n)", "O(n²)", "O(n)", "O(log n)"],
-      correctAnswer: 1
-    },
-    {
-      question: "Which data structure is used for BFS traversal?",
-      options: ["Stack", "Queue", "Heap", "Tree"],
-      correctAnswer: 1
-    },
-    {
-      question: "What is the space complexity of recursion?",
-      options: ["O(1)", "O(n)", "O(log n)", "O(n²)"],
-      correctAnswer: 1
-    },
-    {
-      question: "In which data structure is the insertion at the beginning O(1)?",
-      options: ["Array", "Linked List", "Binary Tree", "Hash Table"],
-      correctAnswer: 1
-    },
-    {
-      question: "What is the maximum number of edges in a complete graph with n vertices?",
-      options: ["n", "n-1", "n(n-1)/2", "n²"],
-      correctAnswer: 2
-    },
-    {
-      question: "Which sorting algorithm is stable?",
-      options: ["Quick Sort", "Heap Sort", "Merge Sort", "Selection Sort"],
-      correctAnswer: 2
-    },
-    {
-      question: "What is the best case time complexity of Binary Search?",
-      options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
-      correctAnswer: 0
-    },
-    {
-      question: "Which traversal of a tree gives elements in sorted order in BST?",
-      options: ["Preorder", "Inorder", "Postorder", "Level order"],
-      correctAnswer: 1
-    },
-    {
-      question: "What is the height of a balanced binary tree with n nodes?",
-      options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
-      correctAnswer: 1
-    },
-    {
-      question: "Which algorithm uses the divide and conquer approach?",
-      options: ["Bubble Sort", "Insertion Sort", "Merge Sort", "Selection Sort"],
-      correctAnswer: 2
-    }
-  ],
-  "Aptitude": [
-    {
-      question: "If a train travels 60 km in 40 minutes, what is its speed in km/h?",
-      options: ["80 km/h", "90 km/h", "100 km/h", "120 km/h"],
-      correctAnswer: 1
-    },
-    {
-      question: "What is 15% of 200?",
-      options: ["25", "30", "35", "40"],
-      correctAnswer: 1
-    },
-    {
-      question: "If 5 workers can complete a task in 10 days, how many days will 10 workers take?",
-      options: ["5 days", "10 days", "15 days", "20 days"],
-      correctAnswer: 0
-    },
-    {
-      question: "What is the next number in the sequence: 2, 6, 12, 20, ?",
-      options: ["28", "30", "32", "36"],
-      correctAnswer: 1
-    },
-    {
-      question: "A product costs ₹500 after a 20% discount. What was the original price?",
-      options: ["₹600", "₹625", "₹650", "₹700"],
-      correctAnswer: 1
-    },
-    {
-      question: "If A is twice as fast as B, and together they complete a work in 12 days, how many days will B alone take?",
-      options: ["18 days", "24 days", "30 days", "36 days"],
-      correctAnswer: 3
-    },
-    {
-      question: "What is 25% of 25% of 400?",
-      options: ["20", "25", "30", "35"],
-      correctAnswer: 1
-    },
-    {
-      question: "A car travels 150 km in 3 hours. What is its average speed?",
-      options: ["40 km/h", "45 km/h", "50 km/h", "55 km/h"],
-      correctAnswer: 2
-    }
-  ],
-  "Communication": [
-    {
-      question: "Which of the following is an example of active listening?",
-      options: ["Interrupting to share your opinion", "Nodding and maintaining eye contact", "Checking your phone", "Thinking about your response"],
-      correctAnswer: 1
-    },
-    {
-      question: "What is the most effective way to handle constructive criticism?",
-      options: ["Defend yourself immediately", "Ignore it", "Listen carefully and ask clarifying questions", "Change the subject"],
-      correctAnswer: 2
-    },
-    {
-      question: "In professional email writing, which greeting is most appropriate?",
-      options: ["Hey!", "Hi there", "Dear Sir/Madam", "Yo"],
-      correctAnswer: 2
-    },
-    {
-      question: "What does body language account for in communication effectiveness?",
-      options: ["10%", "30%", "55%", "80%"],
-      correctAnswer: 2
-    },
-    {
-      question: "Which is the best approach for a group presentation?",
-      options: ["One person does all the talking", "Everyone memorizes exact lines", "Coordinate and practice transitions", "Wing it without practice"],
-      correctAnswer: 2
-    },
-    {
-      question: "What is the most important aspect of effective communication?",
-      options: ["Speaking loudly", "Using complex vocabulary", "Clarity and understanding", "Speed of delivery"],
-      correctAnswer: 2
-    },
-    {
-      question: "How should you handle disagreements in a professional setting?",
-      options: ["Avoid the person", "Raise your voice", "Listen and find common ground", "Ignore the issue"],
-      correctAnswer: 2
-    },
-    {
-      question: "What is the best way to give feedback?",
-      options: ["Be vague to avoid hurting feelings", "Focus on the behavior, not the person", "Only point out negatives", "Wait until it becomes a big issue"],
-      correctAnswer: 1
-    }
-  ],
-  "Mock Interview": [
-    {
-      question: "Why do you want to work for our company?",
-      options: ["For the high salary", "Because it's close to home", "I admire your values and see growth opportunities", "I need any job right now"],
-      correctAnswer: 2
-    },
-    {
-      question: "What is your greatest weakness?",
-      options: ["I'm a perfectionist", "I work too hard", "I'm learning time management and using tools to improve", "I don't have any weaknesses"],
-      correctAnswer: 2
-    },
-    {
-      question: "Where do you see yourself in 5 years?",
-      options: ["In your position", "Running my own company", "Growing within the company with increased responsibilities", "I don't know"],
-      correctAnswer: 2
-    },
-    {
-      question: "How do you handle stress and pressure?",
-      options: ["I avoid stressful situations", "I prioritize tasks and take breaks when needed", "I let it affect my work", "I ignore it"],
-      correctAnswer: 1
-    },
-    {
-      question: "Tell me about a time you failed and what you learned from it.",
-      options: ["I never fail", "I missed a deadline but learned to plan better and communicate early", "I blame others", "I don't remember any failures"],
-      correctAnswer: 1
-    },
-    {
-      question: "Why should we hire you?",
-      options: ["Because I applied", "I'm desperate for this job", "My skills align with your needs and I'm passionate about contributing", "I'm the best candidate"],
-      correctAnswer: 2
-    },
-    {
-      question: "How do you work in a team?",
-      options: ["I prefer working alone", "I collaborate, listen, and contribute ideas", "I let others do the work", "I take charge and tell everyone what to do"],
-      correctAnswer: 1
-    },
-    {
-      question: "What are your salary expectations?",
-      options: ["The highest you can offer", "Based on industry standards and my experience, I'm looking for X range", "Whatever you think is fair", "I don't care about money"],
-      correctAnswer: 1
-    },
-    {
-      question: "Do you have any questions for us?",
-      options: ["No, I'm good", "What's the salary?", "What are the team dynamics and growth opportunities?", "When can I take vacation?"],
-      correctAnswer: 2
-    },
-    {
-      question: "How do you handle criticism?",
-      options: ["I get defensive", "I view it as an opportunity to learn and improve", "I ignore it", "I take it personally"],
-      correctAnswer: 1
-    }
-  ]
+type DifficultyLevel = "beginner" | "intermediate" | "advanced";
+
+const questionBank: Record<string, Record<DifficultyLevel, Question[]>> = {
+  "Technical Skills": {
+    beginner: [
+      {
+        question: "What does HTML stand for?",
+        options: ["Hyper Text Markup Language", "High Tech Modern Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language"],
+        correctAnswer: 0
+      },
+      {
+        question: "Which of the following is NOT a programming language?",
+        options: ["Python", "JavaScript", "HTML", "Java"],
+        correctAnswer: 2
+      },
+      {
+        question: "What does API stand for?",
+        options: ["Application Programming Interface", "Advanced Programming Interface", "Application Process Integration", "Automated Programming Interface"],
+        correctAnswer: 0
+      },
+      {
+        question: "Which protocol is used for secure communication over the internet?",
+        options: ["HTTP", "FTP", "HTTPS", "SMTP"],
+        correctAnswer: 2
+      }
+    ],
+    intermediate: [
+      {
+        question: "What is the time complexity of binary search?",
+        options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
+        correctAnswer: 1
+      },
+      {
+        question: "Which data structure uses LIFO?",
+        options: ["Queue", "Stack", "Array", "Linked List"],
+        correctAnswer: 1
+      },
+      {
+        question: "Which language is known for building Android apps?",
+        options: ["Swift", "Kotlin", "Ruby", "PHP"],
+        correctAnswer: 1
+      },
+      {
+        question: "What is the output of 2**3 in Python?",
+        options: ["5", "6", "8", "9"],
+        correctAnswer: 2
+      }
+    ],
+    advanced: [
+      {
+        question: "What is the purpose of a virtual DOM in React?",
+        options: ["To store data", "To optimize rendering performance", "To handle routing", "To manage state"],
+        correctAnswer: 1
+      },
+      {
+        question: "Which design pattern is used in Redux?",
+        options: ["MVC", "Flux", "Observer", "Singleton"],
+        correctAnswer: 1
+      },
+      {
+        question: "What is the difference between TCP and UDP?",
+        options: ["TCP is faster", "UDP is connection-oriented", "TCP guarantees delivery", "UDP is more reliable"],
+        correctAnswer: 2
+      },
+      {
+        question: "What is a closure in JavaScript?",
+        options: ["A loop structure", "A function with access to outer scope", "A type of array", "A class method"],
+        correctAnswer: 1
+      }
+    ]
+  },
+  "DSA": {
+    beginner: [
+      {
+        question: "Which data structure uses LIFO?",
+        options: ["Queue", "Stack", "Array", "Linked List"],
+        correctAnswer: 1
+      },
+      {
+        question: "What is the time complexity of accessing an element in an array by index?",
+        options: ["O(n)", "O(log n)", "O(1)", "O(n²)"],
+        correctAnswer: 2
+      },
+      {
+        question: "Which data structure is used for BFS traversal?",
+        options: ["Stack", "Queue", "Heap", "Tree"],
+        correctAnswer: 1
+      },
+      {
+        question: "What is the best case time complexity of Binary Search?",
+        options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+        correctAnswer: 0
+      }
+    ],
+    intermediate: [
+      {
+        question: "What is the worst-case time complexity of Quick Sort?",
+        options: ["O(n log n)", "O(n²)", "O(n)", "O(log n)"],
+        correctAnswer: 1
+      },
+      {
+        question: "What is the space complexity of recursion?",
+        options: ["O(1)", "O(n)", "O(log n)", "O(n²)"],
+        correctAnswer: 1
+      },
+      {
+        question: "In which data structure is the insertion at the beginning O(1)?",
+        options: ["Array", "Linked List", "Binary Tree", "Hash Table"],
+        correctAnswer: 1
+      },
+      {
+        question: "Which sorting algorithm is stable?",
+        options: ["Quick Sort", "Heap Sort", "Merge Sort", "Selection Sort"],
+        correctAnswer: 2
+      }
+    ],
+    advanced: [
+      {
+        question: "What is the maximum number of edges in a complete graph with n vertices?",
+        options: ["n", "n-1", "n(n-1)/2", "n²"],
+        correctAnswer: 2
+      },
+      {
+        question: "Which traversal of a tree gives elements in sorted order in BST?",
+        options: ["Preorder", "Inorder", "Postorder", "Level order"],
+        correctAnswer: 1
+      },
+      {
+        question: "What is the height of a balanced binary tree with n nodes?",
+        options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
+        correctAnswer: 1
+      },
+      {
+        question: "Which algorithm uses the divide and conquer approach?",
+        options: ["Bubble Sort", "Insertion Sort", "Merge Sort", "Selection Sort"],
+        correctAnswer: 2
+      }
+    ]
+  },
+  "Aptitude": {
+    beginner: [
+      {
+        question: "What is 15% of 200?",
+        options: ["25", "30", "35", "40"],
+        correctAnswer: 1
+      },
+      {
+        question: "If 5 workers can complete a task in 10 days, how many days will 10 workers take?",
+        options: ["5 days", "10 days", "15 days", "20 days"],
+        correctAnswer: 0
+      },
+      {
+        question: "What is 25% of 25% of 400?",
+        options: ["20", "25", "30", "35"],
+        correctAnswer: 1
+      },
+      {
+        question: "A car travels 150 km in 3 hours. What is its average speed?",
+        options: ["40 km/h", "45 km/h", "50 km/h", "55 km/h"],
+        correctAnswer: 2
+      }
+    ],
+    intermediate: [
+      {
+        question: "If a train travels 60 km in 40 minutes, what is its speed in km/h?",
+        options: ["80 km/h", "90 km/h", "100 km/h", "120 km/h"],
+        correctAnswer: 1
+      },
+      {
+        question: "What is the next number in the sequence: 2, 6, 12, 20, ?",
+        options: ["28", "30", "32", "36"],
+        correctAnswer: 1
+      },
+      {
+        question: "A product costs ₹500 after a 20% discount. What was the original price?",
+        options: ["₹600", "₹625", "₹650", "₹700"],
+        correctAnswer: 1
+      },
+      {
+        question: "If A is twice as fast as B, and together they complete a work in 12 days, how many days will B alone take?",
+        options: ["18 days", "24 days", "30 days", "36 days"],
+        correctAnswer: 3
+      }
+    ],
+    advanced: [
+      {
+        question: "A boat travels 30 km upstream and 44 km downstream in 10 hours. In 13 hours, it can travel 40 km upstream and 55 km downstream. What is the speed of the boat in still water?",
+        options: ["6 km/h", "8 km/h", "10 km/h", "12 km/h"],
+        correctAnswer: 1
+      },
+      {
+        question: "If the sum of ages of 5 children born at intervals of 3 years is 50 years, what is the age of the youngest child?",
+        options: ["2 years", "4 years", "6 years", "8 years"],
+        correctAnswer: 1
+      },
+      {
+        question: "A man can row 40 km upstream and 55 km downstream in 13 hours. Also, he can row 30 km upstream and 44 km downstream in 10 hours. What is the speed of the stream?",
+        options: ["2 km/h", "3 km/h", "4 km/h", "5 km/h"],
+        correctAnswer: 1
+      },
+      {
+        question: "The ratio of ages of A and B is 3:5. After 10 years, the ratio will be 5:7. What is A's current age?",
+        options: ["15 years", "20 years", "25 years", "30 years"],
+        correctAnswer: 0
+      }
+    ]
+  },
+  "Communication": {
+    beginner: [
+      {
+        question: "Which of the following is an example of active listening?",
+        options: ["Interrupting to share your opinion", "Nodding and maintaining eye contact", "Checking your phone", "Thinking about your response"],
+        correctAnswer: 1
+      },
+      {
+        question: "In professional email writing, which greeting is most appropriate?",
+        options: ["Hey!", "Hi there", "Dear Sir/Madam", "Yo"],
+        correctAnswer: 2
+      },
+      {
+        question: "What is the most important aspect of effective communication?",
+        options: ["Speaking loudly", "Using complex vocabulary", "Clarity and understanding", "Speed of delivery"],
+        correctAnswer: 2
+      },
+      {
+        question: "What is the best way to give feedback?",
+        options: ["Be vague to avoid hurting feelings", "Focus on the behavior, not the person", "Only point out negatives", "Wait until it becomes a big issue"],
+        correctAnswer: 1
+      }
+    ],
+    intermediate: [
+      {
+        question: "What is the most effective way to handle constructive criticism?",
+        options: ["Defend yourself immediately", "Ignore it", "Listen carefully and ask clarifying questions", "Change the subject"],
+        correctAnswer: 2
+      },
+      {
+        question: "What does body language account for in communication effectiveness?",
+        options: ["10%", "30%", "55%", "80%"],
+        correctAnswer: 2
+      },
+      {
+        question: "Which is the best approach for a group presentation?",
+        options: ["One person does all the talking", "Everyone memorizes exact lines", "Coordinate and practice transitions", "Wing it without practice"],
+        correctAnswer: 2
+      },
+      {
+        question: "How should you handle disagreements in a professional setting?",
+        options: ["Avoid the person", "Raise your voice", "Listen and find common ground", "Ignore the issue"],
+        correctAnswer: 2
+      }
+    ],
+    advanced: [
+      {
+        question: "How do you effectively communicate bad news to stakeholders?",
+        options: ["Delay as long as possible", "Be direct, provide context, and offer solutions", "Blame others", "Send an email and avoid discussion"],
+        correctAnswer: 1
+      },
+      {
+        question: "What is the best approach for cross-cultural communication?",
+        options: ["Assume everyone thinks like you", "Be aware of cultural differences and adapt", "Speak louder", "Use more jargon"],
+        correctAnswer: 1
+      },
+      {
+        question: "How should you handle a difficult conversation with a colleague?",
+        options: ["Avoid it completely", "Prepare, choose the right time, and focus on facts", "Send a passive-aggressive email", "Involve others immediately"],
+        correctAnswer: 1
+      },
+      {
+        question: "What is the most effective way to influence others?",
+        options: ["Use authority", "Build trust and present logical arguments", "Repeat yourself loudly", "Threaten consequences"],
+        correctAnswer: 1
+      }
+    ]
+  },
+  "Mock Interview": {
+    beginner: [
+      {
+        question: "Tell me about yourself.",
+        options: ["Talk about personal life only", "Share professional background and relevant skills", "Read your resume word by word", "Say you don't know"],
+        correctAnswer: 1
+      },
+      {
+        question: "Why do you want to work for our company?",
+        options: ["For the high salary", "Because it's close to home", "I admire your values and see growth opportunities", "I need any job right now"],
+        correctAnswer: 2
+      },
+      {
+        question: "What are your strengths?",
+        options: ["I don't have any", "List irrelevant personal traits", "Mention relevant skills with examples", "Say you're perfect at everything"],
+        correctAnswer: 2
+      },
+      {
+        question: "Do you have any questions for us?",
+        options: ["No, I'm good", "What's the salary?", "What are the team dynamics and growth opportunities?", "When can I take vacation?"],
+        correctAnswer: 2
+      }
+    ],
+    intermediate: [
+      {
+        question: "What is your greatest weakness?",
+        options: ["I'm a perfectionist", "I work too hard", "I'm learning time management and using tools to improve", "I don't have any weaknesses"],
+        correctAnswer: 2
+      },
+      {
+        question: "Where do you see yourself in 5 years?",
+        options: ["In your position", "Running my own company", "Growing within the company with increased responsibilities", "I don't know"],
+        correctAnswer: 2
+      },
+      {
+        question: "How do you handle stress and pressure?",
+        options: ["I avoid stressful situations", "I prioritize tasks and take breaks when needed", "I let it affect my work", "I ignore it"],
+        correctAnswer: 1
+      },
+      {
+        question: "Why should we hire you?",
+        options: ["Because I applied", "I'm desperate for this job", "My skills align with your needs and I'm passionate about contributing", "I'm the best candidate"],
+        correctAnswer: 2
+      }
+    ],
+    advanced: [
+      {
+        question: "Tell me about a time you failed and what you learned from it.",
+        options: ["I never fail", "I missed a deadline but learned to plan better and communicate early", "I blame others", "I don't remember any failures"],
+        correctAnswer: 1
+      },
+      {
+        question: "How do you work in a team?",
+        options: ["I prefer working alone", "I collaborate, listen, and contribute ideas", "I let others do the work", "I take charge and tell everyone what to do"],
+        correctAnswer: 1
+      },
+      {
+        question: "What are your salary expectations?",
+        options: ["The highest you can offer", "Based on industry standards and my experience, I'm looking for X range", "Whatever you think is fair", "I don't care about money"],
+        correctAnswer: 1
+      },
+      {
+        question: "How do you handle criticism?",
+        options: ["I get defensive", "I view it as an opportunity to learn and improve", "I ignore it", "I take it personally"],
+        correctAnswer: 1
+      }
+    ]
+  }
 };
 
 export function TakeTestDialog({ open, onOpenChange, category, onTestCompleted }: TakeTestDialogProps) {
@@ -265,8 +377,9 @@ export function TakeTestDialog({ open, onOpenChange, category, onTestCompleted }
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
   const [studentInfo, setStudentInfo] = useState({ name: "", studentId: "" });
+  const [selectedLevel, setSelectedLevel] = useState<DifficultyLevel | null>(null);
 
-  const questions = questionBank[category] || [];
+  const questions = selectedLevel && questionBank[category] ? questionBank[category][selectedLevel] : [];
   const totalQuestions = questions.length;
 
   useEffect(() => {
@@ -396,6 +509,7 @@ export function TakeTestDialog({ open, onOpenChange, category, onTestCompleted }
     setTestStarted(false);
     setShowResults(false);
     setScore(0);
+    setSelectedLevel(null);
   };
 
   // Reset test when dialog opens or category changes
@@ -406,15 +520,61 @@ export function TakeTestDialog({ open, onOpenChange, category, onTestCompleted }
   }, [open, category]);
 
   if (!testStarted && !showResults) {
+    if (!selectedLevel) {
+      return (
+        <Dialog open={open} onOpenChange={(o) => { resetTest(); onOpenChange(o); }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{category} Assessment</DialogTitle>
+              <DialogDescription>Select difficulty level</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <p className="text-sm font-medium">Choose your difficulty level:</p>
+              <div className="grid gap-3">
+                <Button
+                  variant="outline"
+                  className="h-auto p-4 flex flex-col items-start hover:border-primary"
+                  onClick={() => setSelectedLevel("beginner")}
+                >
+                  <span className="font-semibold text-green-600">Beginner</span>
+                  <span className="text-xs text-muted-foreground mt-1">Foundational concepts and basics</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-auto p-4 flex flex-col items-start hover:border-primary"
+                  onClick={() => setSelectedLevel("intermediate")}
+                >
+                  <span className="font-semibold text-blue-600">Intermediate</span>
+                  <span className="text-xs text-muted-foreground mt-1">Moderate complexity and problem-solving</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-auto p-4 flex flex-col items-start hover:border-primary"
+                  onClick={() => setSelectedLevel("advanced")}
+                >
+                  <span className="font-semibold text-purple-600">Advanced</span>
+                  <span className="text-xs text-muted-foreground mt-1">Complex scenarios and expert knowledge</span>
+                </Button>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => { resetTest(); onOpenChange(false); }}>Cancel</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      );
+    }
+
     return (
       <Dialog open={open} onOpenChange={(o) => { resetTest(); onOpenChange(o); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{category} Assessment</DialogTitle>
+            <DialogTitle>{category} Assessment - {selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1)}</DialogTitle>
             <DialogDescription>Test your knowledge and skills</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
+              <p className="text-sm"><strong>Difficulty Level:</strong> {selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1)}</p>
               <p className="text-sm"><strong>Total Questions:</strong> {totalQuestions}</p>
               <p className="text-sm"><strong>Time Limit:</strong> 30 minutes</p>
               <p className="text-sm"><strong>Passing Score:</strong> 60%</p>
@@ -429,11 +589,14 @@ export function TakeTestDialog({ open, onOpenChange, category, onTestCompleted }
               </ul>
             </div>
           </div>
-          <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => { resetTest(); onOpenChange(false); }}>Cancel</Button>
-            <Button onClick={() => setTestStarted(true)} className="gradient-primary">
-              Start Test
-            </Button>
+          <div className="flex justify-between gap-3">
+            <Button variant="outline" onClick={() => setSelectedLevel(null)}>Back</Button>
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => { resetTest(); onOpenChange(false); }}>Cancel</Button>
+              <Button onClick={() => setTestStarted(true)} className="gradient-primary">
+                Start Test
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -511,7 +674,8 @@ export function TakeTestDialog({ open, onOpenChange, category, onTestCompleted }
           <div className="space-y-4">
             <h3 className="text-lg font-medium">{questions[currentQuestion].question}</h3>
             <RadioGroup 
-              value={answers[currentQuestion] !== undefined ? answers[currentQuestion]!.toString() : undefined} 
+              key={currentQuestion}
+              value={answers[currentQuestion] !== undefined ? answers[currentQuestion]!.toString() : ""} 
               onValueChange={(value) => handleAnswerSelect(parseInt(value))}
             >
               {questions[currentQuestion].options.map((option, index) => (

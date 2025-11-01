@@ -48,6 +48,73 @@ const questionBank: Record<string, Question[]> = {
       question: "What does API stand for?",
       options: ["Application Programming Interface", "Advanced Programming Interface", "Application Process Integration", "Automated Programming Interface"],
       correctAnswer: 0
+    },
+    {
+      question: "Which language is known for building Android apps?",
+      options: ["Swift", "Kotlin", "Ruby", "PHP"],
+      correctAnswer: 1
+    },
+    {
+      question: "What is the output of 2**3 in Python?",
+      options: ["5", "6", "8", "9"],
+      correctAnswer: 2
+    },
+    {
+      question: "Which protocol is used for secure communication over the internet?",
+      options: ["HTTP", "FTP", "HTTPS", "SMTP"],
+      correctAnswer: 2
+    }
+  ],
+  "DSA": [
+    {
+      question: "What is the worst-case time complexity of Quick Sort?",
+      options: ["O(n log n)", "O(n²)", "O(n)", "O(log n)"],
+      correctAnswer: 1
+    },
+    {
+      question: "Which data structure is used for BFS traversal?",
+      options: ["Stack", "Queue", "Heap", "Tree"],
+      correctAnswer: 1
+    },
+    {
+      question: "What is the space complexity of recursion?",
+      options: ["O(1)", "O(n)", "O(log n)", "O(n²)"],
+      correctAnswer: 1
+    },
+    {
+      question: "In which data structure is the insertion at the beginning O(1)?",
+      options: ["Array", "Linked List", "Binary Tree", "Hash Table"],
+      correctAnswer: 1
+    },
+    {
+      question: "What is the maximum number of edges in a complete graph with n vertices?",
+      options: ["n", "n-1", "n(n-1)/2", "n²"],
+      correctAnswer: 2
+    },
+    {
+      question: "Which sorting algorithm is stable?",
+      options: ["Quick Sort", "Heap Sort", "Merge Sort", "Selection Sort"],
+      correctAnswer: 2
+    },
+    {
+      question: "What is the best case time complexity of Binary Search?",
+      options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+      correctAnswer: 0
+    },
+    {
+      question: "Which traversal of a tree gives elements in sorted order in BST?",
+      options: ["Preorder", "Inorder", "Postorder", "Level order"],
+      correctAnswer: 1
+    },
+    {
+      question: "What is the height of a balanced binary tree with n nodes?",
+      options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
+      correctAnswer: 1
+    },
+    {
+      question: "Which algorithm uses the divide and conquer approach?",
+      options: ["Bubble Sort", "Insertion Sort", "Merge Sort", "Selection Sort"],
+      correctAnswer: 2
     }
   ],
   "Aptitude": [
@@ -75,6 +142,21 @@ const questionBank: Record<string, Question[]> = {
       question: "A product costs ₹500 after a 20% discount. What was the original price?",
       options: ["₹600", "₹625", "₹650", "₹700"],
       correctAnswer: 1
+    },
+    {
+      question: "If A is twice as fast as B, and together they complete a work in 12 days, how many days will B alone take?",
+      options: ["18 days", "24 days", "30 days", "36 days"],
+      correctAnswer: 3
+    },
+    {
+      question: "What is 25% of 25% of 400?",
+      options: ["20", "25", "30", "35"],
+      correctAnswer: 1
+    },
+    {
+      question: "A car travels 150 km in 3 hours. What is its average speed?",
+      options: ["40 km/h", "45 km/h", "50 km/h", "55 km/h"],
+      correctAnswer: 2
     }
   ],
   "Communication": [
@@ -102,6 +184,73 @@ const questionBank: Record<string, Question[]> = {
       question: "Which is the best approach for a group presentation?",
       options: ["One person does all the talking", "Everyone memorizes exact lines", "Coordinate and practice transitions", "Wing it without practice"],
       correctAnswer: 2
+    },
+    {
+      question: "What is the most important aspect of effective communication?",
+      options: ["Speaking loudly", "Using complex vocabulary", "Clarity and understanding", "Speed of delivery"],
+      correctAnswer: 2
+    },
+    {
+      question: "How should you handle disagreements in a professional setting?",
+      options: ["Avoid the person", "Raise your voice", "Listen and find common ground", "Ignore the issue"],
+      correctAnswer: 2
+    },
+    {
+      question: "What is the best way to give feedback?",
+      options: ["Be vague to avoid hurting feelings", "Focus on the behavior, not the person", "Only point out negatives", "Wait until it becomes a big issue"],
+      correctAnswer: 1
+    }
+  ],
+  "Mock Interview": [
+    {
+      question: "Why do you want to work for our company?",
+      options: ["For the high salary", "Because it's close to home", "I admire your values and see growth opportunities", "I need any job right now"],
+      correctAnswer: 2
+    },
+    {
+      question: "What is your greatest weakness?",
+      options: ["I'm a perfectionist", "I work too hard", "I'm learning time management and using tools to improve", "I don't have any weaknesses"],
+      correctAnswer: 2
+    },
+    {
+      question: "Where do you see yourself in 5 years?",
+      options: ["In your position", "Running my own company", "Growing within the company with increased responsibilities", "I don't know"],
+      correctAnswer: 2
+    },
+    {
+      question: "How do you handle stress and pressure?",
+      options: ["I avoid stressful situations", "I prioritize tasks and take breaks when needed", "I let it affect my work", "I ignore it"],
+      correctAnswer: 1
+    },
+    {
+      question: "Tell me about a time you failed and what you learned from it.",
+      options: ["I never fail", "I missed a deadline but learned to plan better and communicate early", "I blame others", "I don't remember any failures"],
+      correctAnswer: 1
+    },
+    {
+      question: "Why should we hire you?",
+      options: ["Because I applied", "I'm desperate for this job", "My skills align with your needs and I'm passionate about contributing", "I'm the best candidate"],
+      correctAnswer: 2
+    },
+    {
+      question: "How do you work in a team?",
+      options: ["I prefer working alone", "I collaborate, listen, and contribute ideas", "I let others do the work", "I take charge and tell everyone what to do"],
+      correctAnswer: 1
+    },
+    {
+      question: "What are your salary expectations?",
+      options: ["The highest you can offer", "Based on industry standards and my experience, I'm looking for X range", "Whatever you think is fair", "I don't care about money"],
+      correctAnswer: 1
+    },
+    {
+      question: "Do you have any questions for us?",
+      options: ["No, I'm good", "What's the salary?", "What are the team dynamics and growth opportunities?", "When can I take vacation?"],
+      correctAnswer: 2
+    },
+    {
+      question: "How do you handle criticism?",
+      options: ["I get defensive", "I view it as an opportunity to learn and improve", "I ignore it", "I take it personally"],
+      correctAnswer: 1
     }
   ]
 };
@@ -248,6 +397,13 @@ export function TakeTestDialog({ open, onOpenChange, category, onTestCompleted }
     setShowResults(false);
     setScore(0);
   };
+
+  // Reset test when dialog opens or category changes
+  useEffect(() => {
+    if (open) {
+      resetTest();
+    }
+  }, [open, category]);
 
   if (!testStarted && !showResults) {
     return (

@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users as UsersIcon, Search, Shield } from "lucide-react";
+import { Users as UsersIcon, Search, Shield, Trash2 } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -53,14 +53,34 @@ export default function Users() {
   const fetchProfiles = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
+      // Fetch profiles with their roles from user_roles table
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setProfiles(data || []);
-      setFilteredProfiles(data || []);
+      if (profilesError) throw profilesError;
+
+      // Fetch roles for each user
+      const profilesWithRoles = await Promise.all(
+        (profilesData || []).map(async (profile) => {
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', profile.id)
+            .order('role', { ascending: true })
+            .limit(1)
+            .single();
+
+          return {
+            ...profile,
+            role: roleData?.role || 'user'
+          };
+        })
+      );
+
+      setProfiles(profilesWithRoles);
+      setFilteredProfiles(profilesWithRoles);
     } catch (error) {
       console.error('Error fetching profiles:', error);
       toast({
@@ -75,10 +95,13 @@ export default function Users() {
 
   const updateUserRole = async (userId: string, newRole: 'admin' | 'faculty' | 'recruiter' | 'user') => {
     try {
+      // Delete existing role
+      await supabase.from('user_roles').delete().eq('user_id', userId);
+      
+      // Insert new role
       const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
+        .from('user_roles')
+        .insert({ user_id: userId, role: newRole });
 
       if (error) throw error;
 
@@ -93,6 +116,36 @@ export default function Users() {
       toast({
         title: "Error",
         description: "Failed to update user role. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      // Delete user profile (cascade will handle user_roles)
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "User deleted successfully.",
+      });
+
+      fetchProfiles();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user. Please try again.",
         variant: "destructive",
       });
     }
@@ -164,7 +217,8 @@ export default function Users() {
                   <TableHead>Email</TableHead>
                   <TableHead>Current Role</TableHead>
                   <TableHead>Joined Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Change Role</TableHead>
+                  <TableHead className="text-right">Delete</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -181,7 +235,7 @@ export default function Users() {
                       <TableCell>
                         {new Date(profile.created_at).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell>
                         <Select
                           value={profile.role}
                           onValueChange={(value) => updateUserRole(profile.id, value as 'admin' | 'faculty' | 'recruiter' | 'user')}
@@ -197,11 +251,21 @@ export default function Users() {
                           </SelectContent>
                         </Select>
                       </TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => deleteUser(profile.id)}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                       No users found
                     </TableCell>
                   </TableRow>

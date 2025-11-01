@@ -15,7 +15,10 @@ import {
   XCircle,
   Play,
   BarChart3,
-  Plus
+  Plus,
+  Code,
+  Brain,
+  MessageSquare
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { TakeTestDialog } from "@/components/TakeTestDialog";
@@ -58,13 +61,16 @@ export default function Assessments() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: profile } = await supabase
-        .from('profiles')
+      // Fetch user role from user_roles table
+      const { data: roleData } = await supabase
+        .from('user_roles')
         .select('role')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
+        .order('role', { ascending: true })
+        .limit(1)
         .single();
 
-      setUserRole(profile?.role || '');
+      setUserRole(roleData?.role || 'user');
 
       const { data, error } = await supabase
         .from('assessments')
@@ -208,25 +214,86 @@ export default function Assessments() {
             <CardDescription>Choose a test to improve your skills</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {['Technical Skills', 'Aptitude', 'Communication'].map((category, idx) => (
-                <Card key={idx} className="border-2 border-primary/20 hover:border-primary/40 transition-smooth cursor-pointer">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{category}</CardTitle>
-                    <CardDescription>5 questions • 30 minutes</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button 
-                      className="w-full" 
-                      variant="outline"
-                      onClick={() => handleStartTest(category)}
-                    >
-                      <Play className="w-4 h-4 mr-2" />
-                      Start Test
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <Card className="border-2 border-primary/20 hover:border-primary/40 transition-smooth cursor-pointer" onClick={() => handleStartTest("Technical Skills")}>
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center mb-2">
+                    <Code className="w-6 h-6 text-white" />
+                  </div>
+                  <CardTitle className="text-lg">Technical Skills</CardTitle>
+                  <CardDescription>8 questions • 30 minutes</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full" variant="outline">
+                    <Play className="w-4 h-4 mr-2" />
+                    Start Test
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-primary/20 hover:border-primary/40 transition-smooth cursor-pointer" onClick={() => handleStartTest("DSA")}>
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center mb-2">
+                    <Code className="w-6 h-6 text-white" />
+                  </div>
+                  <CardTitle className="text-lg">DSA</CardTitle>
+                  <CardDescription>10 questions • 30 minutes</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full" variant="outline">
+                    <Play className="w-4 h-4 mr-2" />
+                    Start Test
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-primary/20 hover:border-primary/40 transition-smooth cursor-pointer" onClick={() => handleStartTest("Aptitude")}>
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center mb-2">
+                    <Brain className="w-6 h-6 text-white" />
+                  </div>
+                  <CardTitle className="text-lg">Aptitude</CardTitle>
+                  <CardDescription>8 questions • 30 minutes</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full" variant="outline">
+                    <Play className="w-4 h-4 mr-2" />
+                    Start Test
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-primary/20 hover:border-primary/40 transition-smooth cursor-pointer" onClick={() => handleStartTest("Communication")}>
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center mb-2">
+                    <MessageSquare className="w-6 h-6 text-white" />
+                  </div>
+                  <CardTitle className="text-lg">Communication</CardTitle>
+                  <CardDescription>8 questions • 30 minutes</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full" variant="outline">
+                    <Play className="w-4 h-4 mr-2" />
+                    Start Test
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-primary/20 hover:border-primary/40 transition-smooth cursor-pointer" onClick={() => handleStartTest("Mock Interview")}>
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center mb-2">
+                    <MessageSquare className="w-6 h-6 text-white" />
+                  </div>
+                  <CardTitle className="text-lg">Mock Interview</CardTitle>
+                  <CardDescription>10 questions • 30 minutes</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full" variant="outline">
+                    <Play className="w-4 h-4 mr-2" />
+                    Start Test
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </CardContent>
         </Card>

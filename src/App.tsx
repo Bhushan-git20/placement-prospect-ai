@@ -19,6 +19,7 @@ import Candidates from "./pages/Candidates";
 import DataManagement from "./pages/DataManagement";
 import NotFound from "./pages/NotFound";
 import MyAssessments from "./pages/MyAssessments";
+import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/candidates" element={<Candidates />} />
             <Route path="/data" element={<DataManagement />} />
             <Route path="/my-assessments" element={<MyAssessments />} />
+            <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

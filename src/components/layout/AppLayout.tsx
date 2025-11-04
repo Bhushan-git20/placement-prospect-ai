@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { Loader2 } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function AppLayout() {
   const navigate = useNavigate();
@@ -69,14 +68,13 @@ export function AppLayout() {
         <AppSidebar />
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="h-14 glass-card border-b border-sidebar-border flex items-center justify-between px-4 sticky top-0 z-10">
+          <header className="h-14 glass-card border-b border-sidebar-border flex items-center px-4 sticky top-0 z-10">
             <div className="flex items-center">
               <SidebarTrigger className="hover:bg-sidebar-accent/50 transition-smooth" />
               <div className="ml-4">
                 <h2 className="text-sm font-medium gradient-text">AI-Powered Placement Analysis</h2>
               </div>
             </div>
-            <ThemeToggle />
           </header>
           
           {/* Main Content */}

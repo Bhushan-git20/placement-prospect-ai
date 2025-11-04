@@ -80,6 +80,84 @@ export type Database = {
         }
         Relationships: []
       }
+      career_transitions: {
+        Row: {
+          avg_time_months: number | null
+          created_at: string | null
+          from_role: string
+          id: string
+          required_skills: string[] | null
+          salary_change_percent: number | null
+          sample_size: number | null
+          success_rate: number | null
+          to_role: string
+          updated_at: string | null
+        }
+        Insert: {
+          avg_time_months?: number | null
+          created_at?: string | null
+          from_role: string
+          id?: string
+          required_skills?: string[] | null
+          salary_change_percent?: number | null
+          sample_size?: number | null
+          success_rate?: number | null
+          to_role: string
+          updated_at?: string | null
+        }
+        Update: {
+          avg_time_months?: number | null
+          created_at?: string | null
+          from_role?: string
+          id?: string
+          required_skills?: string[] | null
+          salary_change_percent?: number | null
+          sample_size?: number | null
+          success_rate?: number | null
+          to_role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      job_market_trends: {
+        Row: {
+          avg_salary: number | null
+          created_at: string | null
+          demand_score: number | null
+          growth_rate: number | null
+          id: string
+          job_postings_count: number | null
+          job_role: string | null
+          month_year: string
+          region: string | null
+          skill_name: string | null
+        }
+        Insert: {
+          avg_salary?: number | null
+          created_at?: string | null
+          demand_score?: number | null
+          growth_rate?: number | null
+          id?: string
+          job_postings_count?: number | null
+          job_role?: string | null
+          month_year: string
+          region?: string | null
+          skill_name?: string | null
+        }
+        Update: {
+          avg_salary?: number | null
+          created_at?: string | null
+          demand_score?: number | null
+          growth_rate?: number | null
+          id?: string
+          job_postings_count?: number | null
+          job_role?: string | null
+          month_year?: string
+          region?: string | null
+          skill_name?: string | null
+        }
+        Relationships: []
+      }
       job_postings: {
         Row: {
           application_deadline: string | null
@@ -221,6 +299,33 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_relationships: {
+        Row: {
+          created_at: string | null
+          id: string
+          relationship_type: string
+          skill_from: string
+          skill_to: string
+          strength: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          relationship_type: string
+          skill_from: string
+          skill_to: string
+          strength?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          relationship_type?: string
+          skill_from?: string
+          skill_to?: string
+          strength?: number | null
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           cgpa: number | null
@@ -308,6 +413,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_career_journeys: {
+        Row: {
+          created_at: string | null
+          from_role: string | null
+          id: string
+          skills_acquired: string[] | null
+          student_id: string
+          success_metrics: Json | null
+          time_invested_months: number | null
+          to_role: string
+          transition_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          from_role?: string | null
+          id?: string
+          skills_acquired?: string[] | null
+          student_id: string
+          success_metrics?: Json | null
+          time_invested_months?: number | null
+          to_role: string
+          transition_date: string
+        }
+        Update: {
+          created_at?: string | null
+          from_role?: string | null
+          id?: string
+          skills_acquired?: string[] | null
+          student_id?: string
+          success_metrics?: Json | null
+          time_invested_months?: number | null
+          to_role?: string
+          transition_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_career_journeys_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -345,10 +494,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
-      get_user_email: {
-        Args: { _user_id: string }
-        Returns: string
-      }
+      get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

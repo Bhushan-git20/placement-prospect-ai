@@ -77,3 +77,12 @@ verify_jwt = true
 
 [functions.career-chat]
 verify_jwt = false
+
+[functions.collaborative-filtering]
+verify_jwt = false
+
+[functions.market-trends-analysis]
+verify_jwt = false
+
+[functions.bert-skill-extraction]
+verify_jwt = false

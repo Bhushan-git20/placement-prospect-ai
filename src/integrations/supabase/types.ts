@@ -119,6 +119,54 @@ export type Database = {
         }
         Relationships: []
       }
+      job_applications: {
+        Row: {
+          applied_date: string
+          created_at: string
+          id: string
+          job_id: string
+          notes: string | null
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          applied_date?: string
+          created_at?: string
+          id?: string
+          job_id: string
+          notes?: string | null
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          applied_date?: string
+          created_at?: string
+          id?: string
+          job_id?: string
+          notes?: string | null
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_applications_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_market_trends: {
         Row: {
           avg_salary: number | null

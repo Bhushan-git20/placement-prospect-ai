@@ -23,9 +23,11 @@ import {
   BookOpen,
   Plus,
   Loader2,
-  GitMerge
+  GitMerge,
+  Clipboard
 } from "lucide-react";
 import { StudentJobMatchDialog } from "@/components/StudentJobMatchDialog";
+import { StudentJobApplicationDialog } from "@/components/StudentJobApplicationDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Student {
@@ -57,6 +59,8 @@ export default function Students() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showMatchDialog, setShowMatchDialog] = useState(false);
+  const [showJobApplicationDialog, setShowJobApplicationDialog] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<{ id: string; name: string } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [userRole, setUserRole] = useState("");
   const { toast } = useToast();
@@ -406,6 +410,15 @@ export default function Students() {
         open={showMatchDialog}
         onOpenChange={setShowMatchDialog}
       />
+
+      {selectedStudent && (
+        <StudentJobApplicationDialog
+          open={showJobApplicationDialog}
+          onOpenChange={setShowJobApplicationDialog}
+          studentId={selectedStudent.id}
+          studentName={selectedStudent.name}
+        />
+      )}
       </div>
 
       {/* Filters */}
@@ -599,6 +612,18 @@ export default function Students() {
                     No Resume
                   </Button>
                 )}
+                <Button 
+                  variant="default" 
+                  className="w-full gradient-primary" 
+                  size="sm"
+                  onClick={() => {
+                    setSelectedStudent({ id: student.id, name: student.name });
+                    setShowJobApplicationDialog(true);
+                  }}
+                >
+                  <Clipboard className="w-4 h-4 mr-2" />
+                  Apply for Jobs
+                </Button>
               </div>
             </CardContent>
           </Card>

@@ -29,6 +29,13 @@ import {
 import { StudentJobMatchDialog } from "@/components/StudentJobMatchDialog";
 import { StudentJobApplicationDialog } from "@/components/StudentJobApplicationDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  getPlacementStatusColor, 
+  getReadinessScoreColor, 
+  getDepartmentColor,
+  getPlacementStatusLabel,
+  getReadinessScoreLabel
+} from "@/lib/colorCoding";
 
 interface Student {
   id: string;
@@ -142,14 +149,6 @@ export default function Students() {
     }
 
     setFilteredStudents(filtered);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'placed': return 'bg-green-500/20 text-green-600 border-green-500/30';
-      case 'in_process': return 'bg-blue-500/20 text-blue-600 border-blue-500/30';
-      default: return 'bg-gray-500/20 text-gray-600 border-gray-500/30';
-    }
   };
 
   const departments = [...new Set(students.map(s => s.department))];
@@ -499,28 +498,30 @@ export default function Students() {
         {filteredStudents.map((student) => (
           <Card key={student.id} className="glass-card card-hover transition-smooth">
             <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="w-16 h-16">
-                    <AvatarFallback className="gradient-primary text-white text-lg">
-                      {student.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <CardTitle className="text-xl">{student.name}</CardTitle>
-                    <CardDescription className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        {student.student_id}
-                      </Badge>
-                      <span>•</span>
-                      <span>{student.department}</span>
-                    </CardDescription>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-4">
+                    <Avatar className="w-16 h-16">
+                      <AvatarFallback className="gradient-primary text-white text-lg">
+                        {student.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <CardTitle className="text-xl">{student.name}</CardTitle>
+                      <CardDescription className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs">
+                          {student.student_id}
+                        </Badge>
+                        <span>•</span>
+                        <Badge variant={getDepartmentColor(student.department)} className="text-xs">
+                          {student.department}
+                        </Badge>
+                      </CardDescription>
+                    </div>
                   </div>
+                  <Badge variant={getPlacementStatusColor(student.placement_status)}>
+                    {getPlacementStatusLabel(student.placement_status)}
+                  </Badge>
                 </div>
-                <Badge className={getStatusColor(student.placement_status)}>
-                  {student.placement_status.replace('_', ' ')}
-                </Badge>
-              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Academic Info */}
@@ -543,7 +544,12 @@ export default function Students() {
                       <Target className="w-4 h-4" />
                       Readiness Score
                     </span>
-                    <span className="font-bold gradient-text">{student.placement_readiness_score}%</span>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={getReadinessScoreColor(student.placement_readiness_score)}>
+                        {getReadinessScoreLabel(student.placement_readiness_score)}
+                      </Badge>
+                      <span className="font-bold gradient-text">{student.placement_readiness_score}%</span>
+                    </div>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2">
                     <div 

@@ -20,6 +20,11 @@ import {
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AddJobDialog } from "@/components/AddJobDialog";
+import { 
+  getIndustryColor, 
+  getJobTypeColor, 
+  getExperienceLevelColor 
+} from "@/lib/colorCoding";
 
 interface JobPosting {
   id: string;
@@ -258,17 +263,17 @@ export default function Jobs() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-3">
-                    <Badge variant="secondary">
+                    <Badge variant={getJobTypeColor(job.job_type)}>
                       {job.job_type}
                     </Badge>
-                    <Badge variant="outline">
+                    <Badge variant={getExperienceLevelColor(job.experience_level)}>
                       {job.experience_level}
                     </Badge>
-                    <Badge variant="outline" className="text-primary border-primary/30">
+                    <Badge variant={getIndustryColor(job.industry)}>
                       {job.industry}
                     </Badge>
                     {job.demand_score && job.demand_score > 70 && (
-                      <Badge className="bg-green-500/20 text-green-600 border-green-500/30">
+                      <Badge variant="success">
                         <TrendingUp className="w-3 h-3 mr-1" />
                         High Demand
                       </Badge>

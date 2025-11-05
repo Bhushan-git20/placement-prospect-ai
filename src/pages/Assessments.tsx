@@ -23,6 +23,11 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { TakeTestDialog } from "@/components/TakeTestDialog";
 import { CreateAssessmentDialog } from "@/components/CreateAssessmentDialog";
+import { 
+  getAssessmentScoreColor, 
+  getAssessmentTypeColor,
+  getDifficultyColor
+} from "@/lib/colorCoding";
 
 interface Assessment {
   id: string;
@@ -88,22 +93,6 @@ export default function Assessments() {
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-blue-600';
-    if (score >= 40) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty?.toLowerCase()) {
-      case 'easy': return 'bg-green-500/20 text-green-600 border-green-500/30';
-      case 'medium': return 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30';
-      case 'hard': return 'bg-red-500/20 text-red-600 border-red-500/30';
-      default: return 'bg-gray-500/20 text-gray-600 border-gray-500/30';
     }
   };
 
@@ -182,7 +171,7 @@ export default function Assessments() {
         <Card className="glass-card">
           <CardHeader className="pb-2">
             <CardDescription>Average Score</CardDescription>
-            <CardTitle className={`text-3xl ${getScoreColor(avgScore)}`}>
+            <CardTitle className="text-3xl gradient-text">
               {avgScore}%
             </CardTitle>
           </CardHeader>
@@ -317,9 +306,11 @@ export default function Assessments() {
                     <div>
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="font-semibold text-lg">{assessment.assessment_type}</h3>
-                        <Badge variant="outline">{assessment.test_category}</Badge>
+                        <Badge variant={getAssessmentTypeColor(assessment.test_category)}>
+                          {assessment.test_category}
+                        </Badge>
                         {assessment.difficulty_level && (
-                          <Badge className={getDifficultyColor(assessment.difficulty_level)}>
+                          <Badge variant={getDifficultyColor(assessment.difficulty_level)}>
                             {assessment.difficulty_level}
                           </Badge>
                         )}
@@ -332,9 +323,18 @@ export default function Assessments() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-3xl font-bold gradient-text mb-1">
-                        {assessment.score}%
-                      </p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant={getAssessmentScoreColor(assessment.score || 0)}>
+                          {assessment.score! >= 90 ? 'Excellent' :
+                           assessment.score! >= 80 ? 'Very Good' :
+                           assessment.score! >= 70 ? 'Good' :
+                           assessment.score! >= 60 ? 'Average' :
+                           assessment.score! >= 50 ? 'Below Average' : 'Needs Improvement'}
+                        </Badge>
+                        <p className="text-3xl font-bold gradient-text">
+                          {assessment.score}%
+                        </p>
+                      </div>
                       <p className="text-xs text-muted-foreground">
                         {assessment.correct_answers}/{assessment.total_questions} correct
                       </p>
@@ -384,7 +384,7 @@ export default function Assessments() {
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {assessment.strengths.map((strength, idx) => (
-                          <Badge key={idx} className="bg-green-500/20 text-green-600 border-green-500/30">
+                          <Badge key={idx} variant="success">
                             {strength}
                           </Badge>
                         ))}
@@ -401,7 +401,7 @@ export default function Assessments() {
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {assessment.areas_of_improvement.map((area, idx) => (
-                          <Badge key={idx} variant="outline">
+                          <Badge key={idx} variant="warning">
                             {area}
                           </Badge>
                         ))}

@@ -10,9 +10,12 @@ const statsCardVariants = cva(
       variant: {
         default: "border-border",
         primary: "border-primary/20 bg-gradient-to-br from-primary/5 to-transparent",
-        success: "border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent",
-        warning: "border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-transparent",
-        info: "border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent",
+        success: "border-success/20 bg-gradient-to-br from-success/5 to-transparent",
+        warning: "border-warning/20 bg-gradient-to-br from-warning/5 to-transparent",
+        info: "border-info/20 bg-gradient-to-br from-info/5 to-transparent",
+        cyan: "border-brand-cyan/20 bg-gradient-to-br from-brand-cyan/5 to-transparent",
+        pink: "border-brand-pink/20 bg-gradient-to-br from-brand-pink/5 to-transparent",
+        orange: "border-brand-orange/20 bg-gradient-to-br from-brand-orange/5 to-transparent",
       },
     },
     defaultVariants: {
@@ -50,7 +53,16 @@ export function StatsCard({
           {title}
         </CardTitle>
         {icon && (
-          <div className="text-muted-foreground opacity-70">
+          <div className={cn(
+            "text-muted-foreground opacity-70 transition-all duration-300",
+            variant === "primary" && "text-primary",
+            variant === "success" && "text-success",
+            variant === "warning" && "text-warning",
+            variant === "info" && "text-info",
+            variant === "cyan" && "text-brand-cyan",
+            variant === "pink" && "text-brand-pink",
+            variant === "orange" && "text-brand-orange"
+          )}>
             {icon}
           </div>
         )}

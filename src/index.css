@@ -10,6 +10,9 @@
     --brand-primary: 234 89% 64%;     /* Rich Blue #4F46E5 */
     --brand-secondary: 260 84% 59%;   /* Vibrant Purple #7C3AED */
     --brand-tertiary: 217 92% 66%;    /* Bright Blue #2563EB */
+    --brand-cyan: 191 91% 55%;        /* Bright Cyan #06B6D4 */
+    --brand-pink: 330 81% 60%;        /* Hot Pink #EC4899 */
+    --brand-orange: 25 95% 53%;       /* Vibrant Orange #F97316 */
     
     /* Neutral Colors - Light Theme */
     --background: 0 0% 100%;           /* Pure White #FFFFFF */
@@ -39,10 +42,16 @@
     /* Status Colors */
     --success: 142 76% 36%;            /* Green #16A34A */
     --success-foreground: 0 0% 100%;
+    --success-light: 142 76% 92%;      /* Light Green */
     --warning: 38 92% 50%;             /* Orange #F59E0B */
     --warning-foreground: 0 0% 100%;
+    --warning-light: 38 92% 92%;       /* Light Orange */
     --destructive: 0 84% 60%;          /* Red #EF4444 */
     --destructive-foreground: 0 0% 100%;
+    --destructive-light: 0 84% 92%;    /* Light Red */
+    --info: 199 89% 48%;               /* Blue Info #0EA5E9 */
+    --info-foreground: 0 0% 100%;
+    --info-light: 199 89% 92%;         /* Light Blue */
     
     /* UI Element Colors */
     --popover: 0 0% 100%;
@@ -56,6 +65,12 @@
     --gradient-secondary: linear-gradient(135deg, hsl(217 92% 66%), hsl(234 89% 64%));
     --gradient-tertiary: linear-gradient(135deg, hsl(260 84% 59%), hsl(280 100% 65%));
     --gradient-subtle: linear-gradient(135deg, hsl(210 40% 98%), hsl(220 13% 97%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%));
+    --gradient-warning: linear-gradient(135deg, hsl(38 92% 50%), hsl(25 95% 53%));
+    --gradient-info: linear-gradient(135deg, hsl(199 89% 48%), hsl(191 91% 55%));
+    --gradient-rainbow: linear-gradient(135deg, hsl(234 89% 64%), hsl(260 84% 59%), hsl(330 81% 60%), hsl(25 95% 53%));
+    --gradient-sunset: linear-gradient(135deg, hsl(330 81% 60%), hsl(38 92% 50%), hsl(25 95% 53%));
+    --gradient-ocean: linear-gradient(135deg, hsl(191 91% 55%), hsl(199 89% 48%), hsl(217 92% 66%));
     
     /* Shadow Definitions - Softer for Light Theme */
     --shadow-glass: 0 8px 32px hsl(234 89% 64% / 0.1);
@@ -88,8 +103,11 @@
   body {
     @apply bg-background text-foreground;
     background: 
-      radial-gradient(circle at 25% 25%, hsl(234 89% 64% / 0.06) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, hsl(260 84% 59% / 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 10% 20%, hsl(234 89% 64% / 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 90% 30%, hsl(260 84% 59% / 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 30% 80%, hsl(330 81% 60% / 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(191 91% 55% / 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, hsl(25 95% 53% / 0.04) 0%, transparent 50%),
       hsl(var(--background));
     min-height: 100vh;
   }
@@ -125,8 +143,39 @@
     background: var(--gradient-tertiary);
   }
   
+  .gradient-success {
+    background: var(--gradient-success);
+  }
+  
+  .gradient-warning {
+    background: var(--gradient-warning);
+  }
+  
+  .gradient-info {
+    background: var(--gradient-info);
+  }
+  
+  .gradient-rainbow {
+    background: var(--gradient-rainbow);
+  }
+  
+  .gradient-sunset {
+    background: var(--gradient-sunset);
+  }
+  
+  .gradient-ocean {
+    background: var(--gradient-ocean);
+  }
+  
   .gradient-text {
     background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .gradient-text-rainbow {
+    background: var(--gradient-rainbow);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;

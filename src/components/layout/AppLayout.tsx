@@ -68,17 +68,17 @@ export function AppLayout() {
         <AppSidebar />
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="h-14 glass-card border-b border-sidebar-border flex items-center px-4 sticky top-0 z-10">
+          <header className="h-14 glass-card border-b border-sidebar-border flex items-center px-4 sticky top-0 z-10 bg-gradient-to-r from-background via-glass-primary/5 to-background">
             <div className="flex items-center">
               <SidebarTrigger className="hover:bg-sidebar-accent/50 transition-smooth" />
               <div className="ml-4">
-                <h2 className="text-sm font-medium gradient-text">AI-Powered Placement Analysis</h2>
+                <h2 className="text-sm font-medium gradient-text-rainbow">AI-Powered Placement Analysis</h2>
               </div>
             </div>
           </header>
           
           {/* Main Content */}
-          <main className="flex-1 p-6 animate-fade-in">
+          <main className="flex-1 p-6 animate-fade-in bg-gradient-to-br from-background via-glass-primary/5 to-background">
             <Outlet />
           </main>
         </div>

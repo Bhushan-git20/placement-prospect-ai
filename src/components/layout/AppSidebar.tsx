@@ -39,20 +39,21 @@ interface MenuItem {
   url: string;
   icon: React.ComponentType<any>;
   roles: string[];
+  color: string;
 }
 
 const menuItems: MenuItem[] = [
-  { title: "Dashboard", url: "/dashboard", icon: Home, roles: ["admin", "faculty", "recruiter", "user"] },
-  { title: "User Management", url: "/users", icon: Settings, roles: ["admin"] },
-  { title: "Student Profiles", url: "/students", icon: Users, roles: ["admin", "faculty"] },
-  { title: "Job Market", url: "/jobs", icon: Briefcase, roles: ["admin", "recruiter"] },
-  { title: "Skill Analytics", url: "/skills", icon: BarChart3, roles: ["admin", "faculty"] },
-  { title: "Advanced Analytics", url: "/advanced-analytics", icon: Brain, roles: ["admin", "faculty"] },
-  { title: "Practice Center", url: "/assessments", icon: BookOpen, roles: ["admin", "faculty", "user"] },
-  { title: "My Assessments", url: "/my-assessments", icon: GraduationCap, roles: ["user"] },
-  { title: "AI Career Coach", url: "/career-coach", icon: MessageSquare, roles: ["admin", "user"] },
-  { title: "Candidate Search", url: "/candidates", icon: Target, roles: ["admin", "recruiter"] },
-  { title: "Data Management", url: "/data", icon: Database, roles: ["admin", "faculty"] },
+  { title: "Dashboard", url: "/dashboard", icon: Home, roles: ["admin", "faculty", "recruiter", "user"], color: "primary" },
+  { title: "User Management", url: "/users", icon: Settings, roles: ["admin"], color: "accent" },
+  { title: "Student Profiles", url: "/students", icon: Users, roles: ["admin", "faculty"], color: "cyan" },
+  { title: "Job Market", url: "/jobs", icon: Briefcase, roles: ["admin", "recruiter"], color: "orange" },
+  { title: "Skill Analytics", url: "/skills", icon: BarChart3, roles: ["admin", "faculty"], color: "success" },
+  { title: "Advanced Analytics", url: "/advanced-analytics", icon: Brain, roles: ["admin", "faculty"], color: "info" },
+  { title: "Practice Center", url: "/assessments", icon: BookOpen, roles: ["admin", "faculty", "user"], color: "pink" },
+  { title: "My Assessments", url: "/my-assessments", icon: GraduationCap, roles: ["user"], color: "pink" },
+  { title: "AI Career Coach", url: "/career-coach", icon: MessageSquare, roles: ["admin", "user"], color: "info" },
+  { title: "Candidate Search", url: "/candidates", icon: Target, roles: ["admin", "recruiter"], color: "warning" },
+  { title: "Data Management", url: "/data", icon: Database, roles: ["admin", "faculty"], color: "secondary" },
 ];
 
 interface User {
@@ -127,10 +128,21 @@ export function AppSidebar() {
     return item.roles.includes(userRole);
   });
 
-  const getNavClassName = (path: string) => {
+  const getNavClassName = (path: string, color: string) => {
+    const colorMap: Record<string, string> = {
+      primary: "bg-gradient-primary text-white shadow-glow font-medium",
+      cyan: "bg-gradient-to-r from-brand-cyan/20 to-brand-cyan/10 text-brand-cyan border-l-4 border-brand-cyan shadow-[0_0_15px_rgba(6,182,212,0.3)] font-medium",
+      orange: "bg-gradient-to-r from-brand-orange/20 to-brand-orange/10 text-brand-orange border-l-4 border-brand-orange shadow-[0_0_15px_rgba(251,146,60,0.3)] font-medium",
+      pink: "bg-gradient-to-r from-brand-pink/20 to-brand-pink/10 text-brand-pink border-l-4 border-brand-pink shadow-[0_0_15px_rgba(236,72,153,0.3)] font-medium",
+      success: "bg-gradient-to-r from-success/20 to-success/10 text-success border-l-4 border-success shadow-[0_0_15px_rgba(34,197,94,0.3)] font-medium",
+      info: "bg-gradient-to-r from-info/20 to-info/10 text-info border-l-4 border-info shadow-[0_0_15px_rgba(59,130,246,0.3)] font-medium",
+      warning: "bg-gradient-to-r from-warning/20 to-warning/10 text-warning border-l-4 border-warning shadow-[0_0_15px_rgba(234,179,8,0.3)] font-medium",
+      secondary: "bg-gradient-to-r from-secondary/20 to-secondary/10 text-secondary-foreground border-l-4 border-secondary font-medium",
+      accent: "bg-gradient-to-r from-accent/20 to-accent/10 text-accent-foreground border-l-4 border-accent font-medium",
+    };
     return isActive(path) 
-      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium glow-primary" 
-      : "hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-smooth";
+      ? colorMap[color] || "bg-sidebar-accent text-sidebar-accent-foreground font-medium glow-primary" 
+      : "hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:translate-x-1 transition-all duration-300";
   };
 
   return (
@@ -162,7 +174,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild
-                    className={getNavClassName(item.url)}
+                    className={getNavClassName(item.url, item.color)}
                   >
                     <button
                       onClick={() => navigate(item.url)}

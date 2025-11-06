@@ -78,7 +78,7 @@ export function AppLayout() {
           </header>
           
           {/* Main Content */}
-          <main className="flex-1 p-6 animate-fade-in bg-gradient-to-br from-background via-glass-primary/5 to-background">
+          <main className="flex-1 p-6 animate-fade-in">
             <Outlet />
           </main>
         </div>

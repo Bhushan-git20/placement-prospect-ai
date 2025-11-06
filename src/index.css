@@ -14,17 +14,17 @@
     --brand-pink: 330 81% 60%;        /* Hot Pink #EC4899 */
     --brand-orange: 25 95% 53%;       /* Vibrant Orange #F97316 */
     
-    /* Neutral Colors - Light Theme */
-    --background: 0 0% 100%;           /* Pure White #FFFFFF */
-    --background-secondary: 220 13% 97%; /* Very Light Gray #F8FAFC */
-    --foreground: 222 47% 11%;         /* Dark Blue-Gray #0F172A */
-    --muted: 210 40% 96%;              /* Light Muted #F1F5F9 */
-    --muted-foreground: 215 16% 47%;   /* Medium Gray #64748B */
+    /* Neutral Colors - Dark Theme */
+    --background: 222 47% 11%;         /* Dark Blue-Gray */
+    --background-secondary: 224 71% 4%; /* Very Dark */
+    --foreground: 210 40% 98%;         /* Light foreground text */
+    --muted: 215 16% 25%;              /* Dark Muted */
+    --muted-foreground: 215 16% 65%;   /* Light Gray */
 
     /* Card & Surface Colors with Glassmorphism */
-    --card: 0 0% 100%;                 /* White */
-    --card-foreground: 222 47% 11%;
-    --card-border: 214 32% 91%;        /* Light Border #E2E8F0 */
+    --card: 222 47% 11% / 0.6;         /* Semi-transparent dark */
+    --card-foreground: 210 40% 98%;
+    --card-border: 234 89% 64% / 0.2;  /* Colored Border */
     
     /* Glass Effect Colors */
     --glass-primary: 234 89% 64% / 0.08;   /* Primary with 8% opacity */
@@ -101,33 +101,38 @@
   }
 
   body {
-    @apply bg-background text-foreground;
     background: 
-      radial-gradient(circle at 10% 20%, hsl(234 89% 64% / 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 90% 30%, hsl(260 84% 59% / 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 30% 80%, hsl(330 81% 60% / 0.06) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, hsl(191 91% 55% / 0.06) 0%, transparent 50%),
-      radial-gradient(circle at 50% 50%, hsl(25 95% 53% / 0.04) 0%, transparent 50%),
-      hsl(var(--background));
+      radial-gradient(circle at 20% 50%, hsl(234 89% 64% / 0.25), transparent 50%),
+      radial-gradient(circle at 80% 20%, hsl(260 84% 59% / 0.25), transparent 50%),
+      radial-gradient(circle at 40% 80%, hsl(191 91% 55% / 0.2), transparent 40%),
+      radial-gradient(circle at 90% 70%, hsl(330 81% 60% / 0.2), transparent 40%),
+      radial-gradient(circle at 10% 90%, hsl(25 95% 53% / 0.18), transparent 35%),
+      radial-gradient(circle at 60% 40%, hsl(142 76% 36% / 0.15), transparent 45%),
+      linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(224 71% 4%) 50%, hsl(224 47% 8%) 100%);
+    background-attachment: fixed;
     min-height: 100vh;
   }
 
-  /* Glassmorphism Base Classes - Light Theme */
+  /* Glassmorphism Base Classes - Dark Theme */
   .glass-card {
     background: linear-gradient(
       135deg,
-      hsl(0 0% 100% / 0.9),
-      hsl(210 40% 98% / 0.8)
+      hsl(234 89% 64% / 0.12),
+      hsl(260 84% 59% / 0.08)
     );
-    backdrop-filter: blur(16px);
-    border: 1px solid hsl(var(--glass-border));
-    box-shadow: var(--shadow-glass);
+    backdrop-filter: blur(20px);
+    border: 1px solid hsl(234 89% 64% / 0.2);
+    box-shadow: var(--shadow-glass), inset 0 1px 0 hsl(0 0% 100% / 0.1);
   }
   
   .glass-nav {
-    background: hsl(0 0% 100% / 0.95);
+    background: linear-gradient(
+      135deg,
+      hsl(222 47% 11% / 0.95),
+      hsl(234 89% 64% / 0.08)
+    );
     backdrop-filter: blur(20px);
-    border-right: 1px solid hsl(var(--glass-border));
+    border-right: 1px solid hsl(234 89% 64% / 0.2);
   }
   
   /* Interactive Gradient Backgrounds */

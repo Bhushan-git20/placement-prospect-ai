@@ -158,6 +158,7 @@ export default function Dashboard() {
         .from('students')
         .select('name, placed_company, placed_role, package_lpa, department')
         .eq('placement_status', 'placed')
+        .not('package_lpa', 'is', null)
         .order('updated_at', { ascending: false })
         .limit(5);
 

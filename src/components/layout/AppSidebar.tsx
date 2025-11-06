@@ -130,19 +130,19 @@ export function AppSidebar() {
 
   const getNavClassName = (path: string, color: string) => {
     const colorMap: Record<string, string> = {
-      primary: "bg-gradient-primary text-white shadow-glow font-medium",
-      cyan: "bg-gradient-to-r from-brand-cyan/20 to-brand-cyan/10 text-brand-cyan border-l-4 border-brand-cyan shadow-[0_0_15px_rgba(6,182,212,0.3)] font-medium",
-      orange: "bg-gradient-to-r from-brand-orange/20 to-brand-orange/10 text-brand-orange border-l-4 border-brand-orange shadow-[0_0_15px_rgba(251,146,60,0.3)] font-medium",
-      pink: "bg-gradient-to-r from-brand-pink/20 to-brand-pink/10 text-brand-pink border-l-4 border-brand-pink shadow-[0_0_15px_rgba(236,72,153,0.3)] font-medium",
-      success: "bg-gradient-to-r from-success/20 to-success/10 text-success border-l-4 border-success shadow-[0_0_15px_rgba(34,197,94,0.3)] font-medium",
-      info: "bg-gradient-to-r from-info/20 to-info/10 text-info border-l-4 border-info shadow-[0_0_15px_rgba(59,130,246,0.3)] font-medium",
-      warning: "bg-gradient-to-r from-warning/20 to-warning/10 text-warning border-l-4 border-warning shadow-[0_0_15px_rgba(234,179,8,0.3)] font-medium",
-      secondary: "bg-gradient-to-r from-secondary/20 to-secondary/10 text-secondary-foreground border-l-4 border-secondary font-medium",
-      accent: "bg-gradient-to-r from-accent/20 to-accent/10 text-accent-foreground border-l-4 border-accent font-medium",
+      primary: "bg-gradient-primary text-white shadow-lg font-medium",
+      cyan: "bg-gradient-to-r from-brand-cyan/90 to-brand-cyan/70 text-white border-l-4 border-white shadow-[0_0_20px_rgba(6,182,212,0.4)] font-medium",
+      orange: "bg-gradient-to-r from-brand-orange/90 to-brand-orange/70 text-white border-l-4 border-white shadow-[0_0_20px_rgba(251,146,60,0.4)] font-medium",
+      pink: "bg-gradient-to-r from-brand-pink/90 to-brand-pink/70 text-white border-l-4 border-white shadow-[0_0_20px_rgba(236,72,153,0.4)] font-medium",
+      success: "bg-gradient-to-r from-success/90 to-success/70 text-white border-l-4 border-white shadow-[0_0_20px_rgba(34,197,94,0.4)] font-medium",
+      info: "bg-gradient-to-r from-info/90 to-info/70 text-white border-l-4 border-white shadow-[0_0_20px_rgba(59,130,246,0.4)] font-medium",
+      warning: "bg-gradient-to-r from-warning/90 to-warning/70 text-white border-l-4 border-white shadow-[0_0_20px_rgba(234,179,8,0.4)] font-medium",
+      secondary: "bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground border-l-4 border-primary shadow-md font-medium",
+      accent: "bg-gradient-to-r from-accent to-accent/80 text-white border-l-4 border-white shadow-lg font-medium",
     };
     return isActive(path) 
       ? colorMap[color] || "bg-sidebar-accent text-sidebar-accent-foreground font-medium glow-primary" 
-      : "hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:translate-x-1 transition-all duration-300";
+      : "hover:bg-primary/10 hover:text-primary hover:translate-x-1 hover:shadow-sm transition-all duration-300";
   };
 
   return (

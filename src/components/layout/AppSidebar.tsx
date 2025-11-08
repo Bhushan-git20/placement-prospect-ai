@@ -174,7 +174,7 @@ export function AppSidebar() {
     return isActive(path) ? colorMap[color] || "bg-gradient-primary text-white font-bold border-l-4 border-white/50 shadow-glow" : "hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:translate-x-1 transition-all duration-300";
   };
   return <Sidebar className={`glass-nav ${collapsed ? "w-14" : "w-64"} border-r-0`}>
-      <SidebarContent className="p-0">
+      <SidebarContent className="p-0 bg-gray-500">
         {/* Logo Section */}
         <div className="p-6 border-b border-sidebar-border bg-slate-700">
           <div className="flex items-center space-x-3">
@@ -189,7 +189,7 @@ export function AppSidebar() {
         </div>
 
         {/* Navigation Menu */}
-        <SidebarGroup className="flex-1 p-4 bg-transparent">
+        <SidebarGroup className="flex-1 p-4 bg-slate-400">
           <SidebarGroupLabel className="text-xs font-medium text-muted-foreground mb-2 rounded-none">
             {!collapsed && "Navigation"}
           </SidebarGroupLabel>
@@ -209,7 +209,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* User Profile Footer */}
-      <SidebarFooter className="p-4 border-t border-sidebar-border">
+      <SidebarFooter className="p-4 border-t border-sidebar-border bg-slate-500">
         {user && <div className={`space-y-3 ${collapsed ? "flex flex-col items-center" : ""}`}>
             <div className={`flex items-center space-x-3 ${collapsed ? "flex-col space-x-0 space-y-2" : ""}`}>
               <Avatar className="w-8 h-8">
@@ -220,10 +220,10 @@ export function AppSidebar() {
               </Avatar>
               {!collapsed && <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{user.full_name}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                  <p className="text-xs text-muted-foreground capitalize font-bold">{user.role}</p>
                 </div>}
             </div>
-            <Button variant="ghost" size={collapsed ? "icon" : "sm"} onClick={handleSignOut} className="w-full hover:bg-destructive/10 hover:text-destructive transition-smooth">
+            <Button variant="ghost" size={collapsed ? "icon" : "sm"} onClick={handleSignOut} className="w-full hover:bg-destructive/10 transition-smooth text-red-800">
               <LogOut className="w-4 h-4" />
               {!collapsed && <span className="ml-2">Sign Out</span>}
             </Button>

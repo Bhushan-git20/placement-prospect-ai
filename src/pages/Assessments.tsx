@@ -120,7 +120,12 @@ export default function Assessments() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in relative">
+      {/* Page Background Gradient - Pink */}
+      <div className="fixed inset-0 pointer-events-none opacity-30">
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(330,81%,60%)]/20 via-transparent to-[hsl(300,70%,55%)]/20"></div>
+      </div>
+      <div className="relative z-10 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -452,6 +457,7 @@ export default function Assessments() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

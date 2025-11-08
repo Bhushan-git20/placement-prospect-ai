@@ -38,7 +38,12 @@ const AdvancedAnalytics = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto py-8 space-y-8 relative">
+      {/* Page Background Gradient */}
+      <div className="fixed inset-0 pointer-events-none opacity-30">
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(199,89%,48%)]/20 via-transparent to-[hsl(191,91%,55%)]/20"></div>
+      </div>
+      <div className="relative z-10 space-y-8">
         <div className="space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">Advanced Analytics</h1>
           <p className="text-muted-foreground text-lg">
@@ -159,6 +164,7 @@ const AdvancedAnalytics = () => {
           </div>
         </div>
       </div>
+    </div>
   );
 };
 

@@ -146,7 +146,12 @@ export default function Jobs() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in relative">
+      {/* Page Background Gradient - Orange */}
+      <div className="fixed inset-0 pointer-events-none opacity-30">
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(25,95%,53%)]/20 via-transparent to-[hsl(38,92%,50%)]/20"></div>
+      </div>
+      <div className="relative z-10 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -373,6 +378,7 @@ export default function Jobs() {
           </CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 }

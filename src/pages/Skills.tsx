@@ -114,7 +114,12 @@ export default function Skills() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in relative">
+      {/* Page Background Gradient - Green Success */}
+      <div className="fixed inset-0 pointer-events-none opacity-30">
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(142,76%,36%)]/20 via-transparent to-[hsl(160,84%,39%)]/20"></div>
+      </div>
+      <div className="relative z-10 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold gradient-text flex items-center gap-3">
@@ -327,6 +332,7 @@ export default function Skills() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

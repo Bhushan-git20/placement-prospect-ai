@@ -158,6 +158,7 @@ export default function Dashboard() {
         .from('students')
         .select('name, placed_company, placed_role, package_lpa, department')
         .eq('placement_status', 'placed')
+        .not('package_lpa', 'is', null)
         .order('updated_at', { ascending: false })
         .limit(5);
 
@@ -407,7 +408,12 @@ export default function Dashboard() {
   const quickActions = getQuickActions();
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in relative">
+      {/* Page Background Gradient */}
+      <div className="fixed inset-0 pointer-events-none opacity-30">
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(234,89%,64%)]/20 via-transparent to-[hsl(260,84%,59%)]/20"></div>
+      </div>
+      <div className="relative z-10 space-y-8">
       {/* Hero Section */}
       <div className="relative overflow-hidden rounded-2xl glass-card glow-hover">
         <div 
@@ -679,6 +685,7 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

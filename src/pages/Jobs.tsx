@@ -5,27 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Briefcase, 
-  Search, 
-  MapPin, 
-  DollarSign, 
-  Calendar,
-  Building2,
-  TrendingUp,
-  Users,
-  Clock,
-  ExternalLink,
-  Plus
-} from "lucide-react";
+import { Briefcase, Search, MapPin, DollarSign, Calendar, Building2, TrendingUp, Users, Clock, ExternalLink, Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AddJobDialog } from "@/components/AddJobDialog";
-import { 
-  getIndustryColor, 
-  getJobTypeColor, 
-  getExperienceLevelColor 
-} from "@/lib/colorCoding";
-
+import { getIndustryColor, getJobTypeColor, getExperienceLevelColor } from "@/lib/colorCoding";
 interface JobPosting {
   id: string;
   title: string;
@@ -43,7 +26,6 @@ interface JobPosting {
   application_deadline: string | null;
   demand_score: number | null;
 }
-
 export default function Jobs() {
   const [jobs, setJobs] = useState<JobPosting[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<JobPosting[]>([]);
@@ -53,41 +35,40 @@ export default function Jobs() {
   const [experienceFilter, setExperienceFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [userRole, setUserRole] = useState("");
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     fetchUserRole();
     fetchJobs();
   }, []);
-
   const fetchUserRole = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: {
+        user
+      }
+    } = await supabase.auth.getUser();
     if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+      const {
+        data: profile
+      } = await supabase.from('profiles').select('role').eq('id', user.id).single();
       setUserRole(profile?.role || '');
     }
   };
-
   useEffect(() => {
     fetchJobs();
   }, []);
-
   useEffect(() => {
     filterJobs();
   }, [searchQuery, industryFilter, experienceFilter, jobs]);
-
   const fetchJobs = async () => {
     try {
-      const { data, error } = await supabase
-        .from('job_postings')
-        .select('*')
-        .eq('is_active', true)
-        .order('posted_date', { ascending: false });
-
+      const {
+        data,
+        error
+      } = await supabase.from('job_postings').select('*').eq('is_active', true).order('posted_date', {
+        ascending: false
+      });
       if (error) throw error;
       setJobs(data || []);
     } catch (error) {
@@ -95,35 +76,25 @@ export default function Jobs() {
       toast({
         title: "Error",
         description: "Failed to load job postings. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
   };
-
   const filterJobs = () => {
     let filtered = [...jobs];
-
     if (searchQuery) {
-      filtered = filtered.filter(job =>
-        job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.required_skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
+      filtered = filtered.filter(job => job.title.toLowerCase().includes(searchQuery.toLowerCase()) || job.company.toLowerCase().includes(searchQuery.toLowerCase()) || job.required_skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase())));
     }
-
     if (industryFilter !== "all") {
       filtered = filtered.filter(job => job.industry === industryFilter);
     }
-
     if (experienceFilter !== "all") {
       filtered = filtered.filter(job => job.experience_level === experienceFilter);
     }
-
     setFilteredJobs(filtered);
   };
-
   const getDaysAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -131,22 +102,16 @@ export default function Jobs() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
   };
-
   const industries = [...new Set(jobs.map(j => j.industry))];
-
   if (isLoading) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-muted rounded-lg w-64 mb-2"></div>
           <div className="h-4 bg-muted rounded w-96"></div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6 animate-fade-in relative">
+  return <div className="space-y-6 animate-fade-in relative">
       {/* Page Background Gradient - Orange */}
       <div className="fixed inset-0 pointer-events-none opacity-30">
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(25,95%,53%)]/20 via-transparent to-[hsl(38,92%,50%)]/20"></div>
@@ -163,19 +128,13 @@ export default function Jobs() {
             Explore current job opportunities and market trends
           </p>
         </div>
-        {(userRole === 'admin' || userRole === 'recruiter') && (
-          <Button className="gradient-primary glow-hover" onClick={() => setShowAddDialog(true)}>
+        {(userRole === 'admin' || userRole === 'recruiter') && <Button className="gradient-primary glow-hover" onClick={() => setShowAddDialog(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Post Job
-          </Button>
-        )}
+          </Button>}
       </div>
 
-      <AddJobDialog 
-        open={showAddDialog} 
-        onOpenChange={setShowAddDialog}
-        onJobAdded={fetchJobs}
-      />
+      <AddJobDialog open={showAddDialog} onOpenChange={setShowAddDialog} onJobAdded={fetchJobs} />
 
       {/* Filters */}
       <Card className="glass-card">
@@ -183,12 +142,7 @@ export default function Jobs() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search jobs, companies, skills..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+              <Input placeholder="Search jobs, companies, skills..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
             </div>
             <Select value={industryFilter} onValueChange={setIndustryFilter}>
               <SelectTrigger>
@@ -196,9 +150,7 @@ export default function Jobs() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Industries</SelectItem>
-                {industries.map(industry => (
-                  <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-                ))}
+                {industries.map(industry => <SelectItem key={industry} value={industry}>{industry}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={experienceFilter} onValueChange={setExperienceFilter}>
@@ -247,8 +199,7 @@ export default function Jobs() {
 
       {/* Jobs List */}
       <div className="space-y-4">
-        {filteredJobs.map((job) => (
-          <Card key={job.id} className="glass-card card-hover transition-smooth">
+        {filteredJobs.map(job => <Card key={job.id} className="glass-card card-hover transition-smooth">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -277,12 +228,10 @@ export default function Jobs() {
                     <Badge variant={getIndustryColor(job.industry)}>
                       {job.industry}
                     </Badge>
-                    {job.demand_score && job.demand_score > 70 && (
-                      <Badge variant="success">
+                    {job.demand_score && job.demand_score > 70 && <Badge variant="success">
                         <TrendingUp className="w-3 h-3 mr-1" />
                         High Demand
-                      </Badge>
-                    )}
+                      </Badge>}
                   </div>
                 </div>
                 <div className="text-right">
@@ -295,65 +244,44 @@ export default function Jobs() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Salary */}
-              {(job.salary_min || job.salary_max) && (
-                <div className="flex items-center gap-2 text-lg font-semibold gradient-text">
+              {(job.salary_min || job.salary_max) && <div className="flex items-center gap-2 text-lg font-semibold gradient-text">
                   <DollarSign className="w-5 h-5" />
-                  {job.salary_min && job.salary_max 
-                    ? `₹${job.salary_min} - ₹${job.salary_max} LPA`
-                    : job.salary_min 
-                    ? `₹${job.salary_min}+ LPA`
-                    : `Up to ₹${job.salary_max} LPA`
-                  }
-                </div>
-              )}
+                  {job.salary_min && job.salary_max ? `₹${job.salary_min} - ₹${job.salary_max} LPA` : job.salary_min ? `₹${job.salary_min}+ LPA` : `Up to ₹${job.salary_max} LPA`}
+                </div>}
 
               {/* Description */}
-              {job.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
+              {job.description && <p className="text-sm text-muted-foreground line-clamp-2">
                   {job.description}
-                </p>
-              )}
+                </p>}
 
               {/* Required Skills */}
-              {job.required_skills.length > 0 && (
-                <div>
+              {job.required_skills.length > 0 && <div>
                   <p className="text-sm font-medium mb-2">Required Skills</p>
                   <div className="flex flex-wrap gap-2">
-                    {job.required_skills.map((skill, idx) => (
-                      <Badge key={idx} variant="secondary" className="text-xs">
+                    {job.required_skills.map((skill, idx) => <Badge key={idx} variant="secondary" className="text-xs bg-lime-400">
                         {skill}
-                      </Badge>
-                    ))}
+                      </Badge>)}
                   </div>
-                </div>
-              )}
+                </div>}
 
               {/* Preferred Skills */}
-              {job.preferred_skills.length > 0 && (
-                <div>
+              {job.preferred_skills.length > 0 && <div>
                   <p className="text-sm font-medium mb-2">Preferred Skills</p>
                   <div className="flex flex-wrap gap-2">
-                    {job.preferred_skills.slice(0, 5).map((skill, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs">
+                    {job.preferred_skills.slice(0, 5).map((skill, idx) => <Badge key={idx} variant="outline" className="text-xs">
                         {skill}
-                      </Badge>
-                    ))}
-                    {job.preferred_skills.length > 5 && (
-                      <Badge variant="outline" className="text-xs">
+                      </Badge>)}
+                    {job.preferred_skills.length > 5 && <Badge variant="outline" className="text-xs">
                         +{job.preferred_skills.length - 5} more
-                      </Badge>
-                    )}
+                      </Badge>}
                   </div>
-                </div>
-              )}
+                </div>}
 
               {/* Deadline */}
-              {job.application_deadline && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {job.application_deadline && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="w-4 h-4" />
                   Application deadline: {new Date(job.application_deadline).toLocaleDateString()}
-                </div>
-              )}
+                </div>}
 
               {/* Actions */}
               <div className="flex gap-3 pt-3 border-t border-border">
@@ -366,19 +294,15 @@ export default function Jobs() {
                 </Button>
               </div>
             </CardContent>
-          </Card>
-        ))}
+          </Card>)}
       </div>
 
-      {filteredJobs.length === 0 && (
-        <Card className="glass-card">
+      {filteredJobs.length === 0 && <Card className="glass-card">
           <CardContent className="py-12 text-center">
             <Briefcase className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No jobs found matching your criteria</p>
           </CardContent>
-        </Card>
-      )}
+        </Card>}
       </div>
-    </div>
-  );
+    </div>;
 }

@@ -222,7 +222,7 @@ export default function Jobs() {
                     <Badge variant={getJobTypeColor(job.job_type)}>
                       {job.job_type}
                     </Badge>
-                    <Badge variant={getExperienceLevelColor(job.experience_level)}>
+                    <Badge variant={getExperienceLevelColor(job.experience_level)} className="bg-sky-400">
                       {job.experience_level}
                     </Badge>
                     <Badge variant={getIndustryColor(job.industry)}>

@@ -9,34 +9,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Users, 
-  Search, 
-  Filter, 
-  TrendingUp, 
-  Award,
-  Mail,
-  Phone,
-  MapPin,
-  Briefcase,
-  Target,
-  BookOpen,
-  Plus,
-  Loader2,
-  GitMerge,
-  Clipboard
-} from "lucide-react";
+import { Users, Search, Filter, TrendingUp, Award, Mail, Phone, MapPin, Briefcase, Target, BookOpen, Plus, Loader2, GitMerge, Clipboard } from "lucide-react";
 import { StudentJobMatchDialog } from "@/components/StudentJobMatchDialog";
 import { StudentJobApplicationDialog } from "@/components/StudentJobApplicationDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  getPlacementStatusColor, 
-  getReadinessScoreColor, 
-  getDepartmentColor,
-  getPlacementStatusLabel,
-  getReadinessScoreLabel
-} from "@/lib/colorCoding";
-
+import { getPlacementStatusColor, getReadinessScoreColor, getDepartmentColor, getPlacementStatusLabel, getReadinessScoreLabel } from "@/lib/colorCoding";
 interface Student {
   id: string;
   student_id: string;
@@ -56,7 +33,6 @@ interface Student {
   preferred_roles: string[];
   resume_url: string | null;
 }
-
 export default function Students() {
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
@@ -67,11 +43,15 @@ export default function Students() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showMatchDialog, setShowMatchDialog] = useState(false);
   const [showJobApplicationDialog, setShowJobApplicationDialog] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<{ id: string; name: string } | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [userRole, setUserRole] = useState("");
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const [newStudent, setNewStudent] = useState({
     student_id: "",
     name: "",
@@ -84,37 +64,36 @@ export default function Students() {
     preferred_roles: "",
     preferred_locations: ""
   });
-
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-
   useEffect(() => {
     fetchUserRole();
     fetchStudents();
   }, []);
-
   const fetchUserRole = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: {
+        user
+      }
+    } = await supabase.auth.getUser();
     if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+      const {
+        data: profile
+      } = await supabase.from('profiles').select('role').eq('id', user.id).single();
       setUserRole(profile?.role || '');
     }
   };
-
   useEffect(() => {
     filterStudents();
   }, [searchQuery, departmentFilter, statusFilter, students]);
-
   const fetchStudents = async () => {
     try {
-      const { data, error } = await supabase
-        .from('students')
-        .select('*')
-        .order('placement_readiness_score', { ascending: false, nullsFirst: false });
-
+      const {
+        data,
+        error
+      } = await supabase.from('students').select('*').order('placement_readiness_score', {
+        ascending: false,
+        nullsFirst: false
+      });
       if (error) throw error;
       setStudents(data || []);
     } catch (error) {
@@ -122,37 +101,26 @@ export default function Students() {
       toast({
         title: "Error",
         description: "Failed to load students. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
   };
-
   const filterStudents = () => {
     let filtered = [...students];
-
     if (searchQuery) {
-      filtered = filtered.filter(student =>
-        student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        student.student_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        student.email.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      filtered = filtered.filter(student => student.name.toLowerCase().includes(searchQuery.toLowerCase()) || student.student_id.toLowerCase().includes(searchQuery.toLowerCase()) || student.email.toLowerCase().includes(searchQuery.toLowerCase()));
     }
-
     if (departmentFilter !== "all") {
       filtered = filtered.filter(student => student.department === departmentFilter);
     }
-
     if (statusFilter !== "all") {
       filtered = filtered.filter(student => student.placement_status === statusFilter);
     }
-
     setFilteredStudents(filtered);
   };
-
   const departments = [...new Set(students.map(s => s.department))];
-
   const handleAddStudent = async () => {
     setIsSaving(true);
     try {
@@ -163,21 +131,21 @@ export default function Students() {
         const fileExt = resumeFile.name.split('.').pop();
         const fileName = `${newStudent.student_id}-${Date.now()}.${fileExt}`;
         const filePath = `${fileName}`;
-
-        const { error: uploadError, data } = await supabase.storage
-          .from('resumes')
-          .upload(filePath, resumeFile);
-
+        const {
+          error: uploadError,
+          data
+        } = await supabase.storage.from('resumes').upload(filePath, resumeFile);
         if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('resumes')
-          .getPublicUrl(filePath);
-
+        const {
+          data: {
+            publicUrl
+          }
+        } = supabase.storage.from('resumes').getPublicUrl(filePath);
         resume_url = publicUrl;
       }
-
-      const { error } = await supabase.from('students').insert({
+      const {
+        error
+      } = await supabase.from('students').insert({
         student_id: newStudent.student_id,
         name: newStudent.name,
         email: newStudent.email,
@@ -195,18 +163,23 @@ export default function Students() {
         target_companies: [],
         resume_url
       });
-
       if (error) throw error;
-
       toast({
         title: "Student added successfully",
-        description: `${newStudent.name} has been added to the system.`,
+        description: `${newStudent.name} has been added to the system.`
       });
-
       setShowAddDialog(false);
       setNewStudent({
-        student_id: "", name: "", email: "", department: "", year: 1,
-        cgpa: 0, skills: "", university: "", preferred_roles: "", preferred_locations: ""
+        student_id: "",
+        name: "",
+        email: "",
+        department: "",
+        year: 1,
+        cgpa: 0,
+        skills: "",
+        university: "",
+        preferred_roles: "",
+        preferred_locations: ""
       });
       setResumeFile(null);
       fetchStudents();
@@ -214,26 +187,21 @@ export default function Students() {
       toast({
         title: "Error",
         description: error.message || "Failed to add student",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSaving(false);
     }
   };
-
   if (isLoading) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-muted rounded-lg w-64 mb-2"></div>
           <div className="h-4 bg-muted rounded w-96"></div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6 animate-fade-in relative">
+  return <div className="space-y-6 animate-fade-in relative">
       {/* Page Background Gradient - Cyan */}
       <div className="fixed inset-0 pointer-events-none opacity-30">
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(191,91%,55%)]/20 via-transparent to-[hsl(199,89%,48%)]/20"></div>
@@ -250,8 +218,7 @@ export default function Students() {
             Manage and track student profiles, placement readiness, and career progress
           </p>
         </div>
-        {(userRole === 'admin' || userRole === 'faculty') && (
-          <div className="flex gap-2">
+        {(userRole === 'admin' || userRole === 'faculty') && <div className="flex gap-2">
             <Button variant="outline" onClick={() => setShowMatchDialog(true)}>
               <GitMerge className="w-4 h-4 mr-2" />
               Match Students
@@ -272,60 +239,49 @@ export default function Students() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="student_id">Student ID *</Label>
-                    <Input
-                      id="student_id"
-                      value={newStudent.student_id}
-                      onChange={(e) => setNewStudent({...newStudent, student_id: e.target.value})}
-                      placeholder="e.g., ST2024001"
-                    />
+                    <Input id="student_id" value={newStudent.student_id} onChange={e => setNewStudent({
+                      ...newStudent,
+                      student_id: e.target.value
+                    })} placeholder="e.g., ST2024001" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name *</Label>
-                    <Input
-                      id="name"
-                      value={newStudent.name}
-                      onChange={(e) => setNewStudent({...newStudent, name: e.target.value})}
-                      placeholder="John Doe"
-                    />
+                    <Input id="name" value={newStudent.name} onChange={e => setNewStudent({
+                      ...newStudent,
+                      name: e.target.value
+                    })} placeholder="John Doe" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={newStudent.email}
-                    onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
-                    placeholder="john@university.edu"
-                  />
+                  <Input id="email" type="email" value={newStudent.email} onChange={e => setNewStudent({
+                    ...newStudent,
+                    email: e.target.value
+                  })} placeholder="john@university.edu" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="department">Department *</Label>
-                    <Input
-                      id="department"
-                      value={newStudent.department}
-                      onChange={(e) => setNewStudent({...newStudent, department: e.target.value})}
-                      placeholder="Computer Science"
-                    />
+                    <Input id="department" value={newStudent.department} onChange={e => setNewStudent({
+                      ...newStudent,
+                      department: e.target.value
+                    })} placeholder="Computer Science" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="university">University *</Label>
-                    <Input
-                      id="university"
-                      value={newStudent.university}
-                      onChange={(e) => setNewStudent({...newStudent, university: e.target.value})}
-                      placeholder="ABC University"
-                    />
+                    <Input id="university" value={newStudent.university} onChange={e => setNewStudent({
+                      ...newStudent,
+                      university: e.target.value
+                    })} placeholder="ABC University" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="year">Year *</Label>
-                    <Select
-                      value={newStudent.year.toString()}
-                      onValueChange={(value) => setNewStudent({...newStudent, year: parseInt(value)})}
-                    >
+                    <Select value={newStudent.year.toString()} onValueChange={value => setNewStudent({
+                      ...newStudent,
+                      year: parseInt(value)
+                    })}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -339,90 +295,55 @@ export default function Students() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="cgpa">CGPA *</Label>
-                    <Input
-                      id="cgpa"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="10"
-                      value={newStudent.cgpa}
-                      onChange={(e) => setNewStudent({...newStudent, cgpa: parseFloat(e.target.value)})}
-                      placeholder="8.5"
-                    />
+                    <Input id="cgpa" type="number" step="0.01" min="0" max="10" value={newStudent.cgpa} onChange={e => setNewStudent({
+                      ...newStudent,
+                      cgpa: parseFloat(e.target.value)
+                    })} placeholder="8.5" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="skills">Skills (comma-separated)</Label>
-                  <Textarea
-                    id="skills"
-                    value={newStudent.skills}
-                    onChange={(e) => setNewStudent({...newStudent, skills: e.target.value})}
-                    placeholder="React, Python, Machine Learning"
-                    rows={2}
-                  />
+                  <Textarea id="skills" value={newStudent.skills} onChange={e => setNewStudent({
+                    ...newStudent,
+                    skills: e.target.value
+                  })} placeholder="React, Python, Machine Learning" rows={2} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="preferred_roles">Preferred Roles (comma-separated)</Label>
-                  <Input
-                    id="preferred_roles"
-                    value={newStudent.preferred_roles}
-                    onChange={(e) => setNewStudent({...newStudent, preferred_roles: e.target.value})}
-                    placeholder="Software Engineer, Data Analyst"
-                  />
+                  <Input id="preferred_roles" value={newStudent.preferred_roles} onChange={e => setNewStudent({
+                    ...newStudent,
+                    preferred_roles: e.target.value
+                  })} placeholder="Software Engineer, Data Analyst" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="preferred_locations">Preferred Locations (comma-separated)</Label>
-                  <Input
-                    id="preferred_locations"
-                    value={newStudent.preferred_locations}
-                    onChange={(e) => setNewStudent({...newStudent, preferred_locations: e.target.value})}
-                    placeholder="Bangalore, Mumbai, Remote"
-                  />
+                  <Input id="preferred_locations" value={newStudent.preferred_locations} onChange={e => setNewStudent({
+                    ...newStudent,
+                    preferred_locations: e.target.value
+                  })} placeholder="Bangalore, Mumbai, Remote" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="resume">Resume (PDF/DOC)</Label>
-                  <Input
-                    id="resume"
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-                  />
-                  {resumeFile && (
-                    <p className="text-xs text-muted-foreground">
+                  <Input id="resume" type="file" accept=".pdf,.doc,.docx" onChange={e => setResumeFile(e.target.files?.[0] || null)} />
+                  {resumeFile && <p className="text-xs text-muted-foreground">
                       Selected: {resumeFile.name}
-                    </p>
-                  )}
+                    </p>}
                 </div>
               </div>
               <div className="flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setShowAddDialog(false)}>Cancel</Button>
-                <Button 
-                  onClick={handleAddStudent} 
-                  disabled={isSaving || !newStudent.student_id || !newStudent.name || !newStudent.email}
-                  className="gradient-primary"
-                >
+                <Button onClick={handleAddStudent} disabled={isSaving || !newStudent.student_id || !newStudent.name || !newStudent.email} className="gradient-primary">
                   {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                   Add Student
                 </Button>
               </div>
             </DialogContent>
           </Dialog>
-          </div>
-        )}
+          </div>}
 
-      <StudentJobMatchDialog
-        open={showMatchDialog}
-        onOpenChange={setShowMatchDialog}
-      />
+      <StudentJobMatchDialog open={showMatchDialog} onOpenChange={setShowMatchDialog} />
 
-      {selectedStudent && (
-        <StudentJobApplicationDialog
-          open={showJobApplicationDialog}
-          onOpenChange={setShowJobApplicationDialog}
-          studentId={selectedStudent.id}
-          studentName={selectedStudent.name}
-        />
-      )}
+      {selectedStudent && <StudentJobApplicationDialog open={showJobApplicationDialog} onOpenChange={setShowJobApplicationDialog} studentId={selectedStudent.id} studentName={selectedStudent.name} />}
       </div>
 
       {/* Filters */}
@@ -431,12 +352,7 @@ export default function Students() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search students..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+              <Input placeholder="Search students..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
             </div>
             <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
               <SelectTrigger>
@@ -444,9 +360,7 @@ export default function Students() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Departments</SelectItem>
-                {departments.map(dept => (
-                  <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                ))}
+                {departments.map(dept => <SelectItem key={dept} value={dept}>{dept}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -500,8 +414,7 @@ export default function Students() {
 
       {/* Students Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredStudents.map((student) => (
-          <Card key={student.id} className="glass-card card-hover transition-smooth">
+        {filteredStudents.map(student => <Card key={student.id} className="glass-card card-hover transition-smooth">
             <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-4">
@@ -517,13 +430,13 @@ export default function Students() {
                           {student.student_id}
                         </Badge>
                         <span>•</span>
-                        <Badge variant={getDepartmentColor(student.department)} className="text-xs">
+                        <Badge variant={getDepartmentColor(student.department)} className="text-xs bg-amber-600">
                           {student.department}
                         </Badge>
                       </CardDescription>
                     </div>
                   </div>
-                  <Badge variant={getPlacementStatusColor(student.placement_status)}>
+                  <Badge variant={getPlacementStatusColor(student.placement_status)} className="bg-emerald-500">
                     {getPlacementStatusLabel(student.placement_status)}
                   </Badge>
                 </div>
@@ -542,8 +455,7 @@ export default function Students() {
               </div>
 
               {/* Readiness Score */}
-              {student.placement_readiness_score && (
-                <div>
+              {student.placement_readiness_score && <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                       <Target className="w-4 h-4" />
@@ -557,49 +469,37 @@ export default function Students() {
                     </div>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2">
-                    <div 
-                      className="gradient-primary h-2 rounded-full transition-all"
-                      style={{ width: `${student.placement_readiness_score}%` }}
-                    />
+                    <div className="gradient-primary h-2 rounded-full transition-all" style={{
+                  width: `${student.placement_readiness_score}%`
+                }} />
                   </div>
-                </div>
-              )}
+                </div>}
 
               {/* Placement Info */}
-              {student.placement_status === 'placed' && student.placed_company && (
-                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+              {student.placement_status === 'placed' && student.placed_company && <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
                   <div className="flex items-center gap-2 mb-1">
                     <Briefcase className="w-4 h-4 text-green-600" />
                     <span className="font-semibold text-green-600">{student.placed_company}</span>
                   </div>
                   <p className="text-sm text-muted-foreground">{student.placed_role}</p>
-                  {student.package_lpa && (
-                    <p className="text-sm font-medium mt-1">₹{student.package_lpa} LPA</p>
-                  )}
-                </div>
-              )}
+                  {student.package_lpa && <p className="text-sm font-medium mt-1">₹{student.package_lpa} LPA</p>}
+                </div>}
 
               {/* Skills */}
-              {student.skills.length > 0 && (
-                <div>
+              {student.skills.length > 0 && <div>
                   <p className="text-sm text-muted-foreground mb-2 flex items-center gap-1">
                     <Award className="w-4 h-4" />
                     Top Skills
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {student.skills.slice(0, 5).map((skill, idx) => (
-                      <Badge key={idx} variant="secondary" className="text-xs">
+                    {student.skills.slice(0, 5).map((skill, idx) => <Badge key={idx} variant="secondary" className="text-xs bg-lime-400">
                         {skill}
-                      </Badge>
-                    ))}
-                    {student.skills.length > 5 && (
-                      <Badge variant="outline" className="text-xs">
+                      </Badge>)}
+                    {student.skills.length > 5 && <Badge variant="outline" className="text-xs">
                         +{student.skills.length - 5} more
-                      </Badge>
-                    )}
+                      </Badge>}
                   </div>
-                </div>
-              )}
+                </div>}
 
               {/* Contact & Resume */}
               <div className="pt-3 border-t border-border space-y-2">
@@ -607,49 +507,34 @@ export default function Students() {
                   <Mail className="w-4 h-4 mr-2" />
                   {student.email}
                 </Button>
-                {student.resume_url ? (
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    size="sm"
-                    onClick={() => window.open(student.resume_url!, '_blank')}
-                  >
+                {student.resume_url ? <Button variant="outline" className="w-full" size="sm" onClick={() => window.open(student.resume_url!, '_blank')}>
                     <BookOpen className="w-4 h-4 mr-2" />
                     View Resume
-                  </Button>
-                ) : (
-                  <Button variant="outline" className="w-full" size="sm" disabled>
+                  </Button> : <Button variant="outline" className="w-full" size="sm" disabled>
                     <BookOpen className="w-4 h-4 mr-2" />
                     No Resume
-                  </Button>
-                )}
-                <Button 
-                  variant="default" 
-                  className="w-full gradient-primary" 
-                  size="sm"
-                  onClick={() => {
-                    setSelectedStudent({ id: student.id, name: student.name });
-                    setShowJobApplicationDialog(true);
-                  }}
-                >
+                  </Button>}
+                <Button variant="default" className="w-full gradient-primary" size="sm" onClick={() => {
+                setSelectedStudent({
+                  id: student.id,
+                  name: student.name
+                });
+                setShowJobApplicationDialog(true);
+              }}>
                   <Clipboard className="w-4 h-4 mr-2" />
                   Apply for Jobs
                 </Button>
               </div>
             </CardContent>
-          </Card>
-        ))}
+          </Card>)}
       </div>
 
-      {filteredStudents.length === 0 && (
-        <Card className="glass-card">
+      {filteredStudents.length === 0 && <Card className="glass-card">
           <CardContent className="py-12 text-center">
             <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No students found matching your filters</p>
           </CardContent>
-        </Card>
-      )}
+        </Card>}
       </div>
-    </div>
-  );
+    </div>;
 }

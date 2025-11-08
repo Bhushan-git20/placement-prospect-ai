@@ -4,17 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { Loader2 } from "lucide-react";
-
 export function AppLayout() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
-
   useEffect(() => {
     // Check initial session
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: {
+            session
+          }
+        } = await supabase.auth.getSession();
         if (session?.user) {
           setUser(session.user);
         } else {
@@ -29,41 +31,35 @@ export function AppLayout() {
         setIsLoading(false);
       }
     };
-
     checkAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'SIGNED_OUT' || !session) {
-          setUser(null);
-          navigate('/auth');
-        } else if (session?.user) {
-          setUser(session.user);
-        }
+    const {
+      data: {
+        subscription
       }
-    );
-
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        setUser(null);
+        navigate('/auth');
+      } else if (session?.user) {
+        setUser(session.user);
+      }
+    });
     return () => subscription.unsubscribe();
   }, [navigate]);
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
           <p className="text-muted-foreground">Loading PlacePredict...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (!user) {
     return null;
   }
-
-  return (
-    <SidebarProvider defaultOpen={true}>
+  return <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
@@ -78,11 +74,10 @@ export function AppLayout() {
           </header>
           
           {/* Main Content */}
-          <main className="flex-1 p-6 animate-fade-in">
+          <main className="flex-1 p-6 animate-fade-in bg-transparent">
             <Outlet />
           </main>
         </div>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>;
 }

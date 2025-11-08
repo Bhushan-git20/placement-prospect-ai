@@ -36,7 +36,7 @@ const menuItems: MenuItem[] = [{
   title: "Job Market",
   url: "/jobs",
   icon: Briefcase,
-  roles: ["admin", "recruiter"],
+  roles: ["recruiter"],
   color: "orange"
 }, {
   title: "Skill Analytics",

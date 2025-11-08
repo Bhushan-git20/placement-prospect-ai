@@ -425,15 +425,15 @@ export default function Students() {
                     </Avatar>
                     <div>
                       <CardTitle className="text-xl">{student.name}</CardTitle>
-                      <CardDescription className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center gap-2 mt-1">
                         <Badge variant="outline" className="text-xs">
                           {student.student_id}
                         </Badge>
-                        <span>•</span>
+                        <span className="text-muted-foreground text-xs">•</span>
                         <Badge variant={getDepartmentColor(student.department)} className="text-xs bg-amber-600">
                           {student.department}
                         </Badge>
-                      </CardDescription>
+                      </div>
                     </div>
                   </div>
                   <Badge variant={getPlacementStatusColor(student.placement_status)} className="bg-emerald-500">

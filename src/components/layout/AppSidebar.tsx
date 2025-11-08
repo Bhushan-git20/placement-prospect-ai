@@ -190,7 +190,7 @@ export function AppSidebar() {
 
         {/* Navigation Menu */}
         <SidebarGroup className="flex-1 p-4 bg-slate-400">
-          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground mb-2 rounded-none">
+          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground mb-2 rounded-none bg-zinc-600">
             {!collapsed && "Navigation"}
           </SidebarGroupLabel>
           <SidebarGroupContent>

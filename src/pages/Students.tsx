@@ -77,9 +77,9 @@ export default function Students() {
     } = await supabase.auth.getUser();
     if (user) {
       const {
-        data: profile
-      } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      setUserRole(profile?.role || '');
+        data: roleData
+      } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single();
+      setUserRole(roleData?.role || '');
     }
   };
   useEffect(() => {

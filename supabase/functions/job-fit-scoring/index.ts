@@ -7,6 +7,62 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Process students in parallel batches for faster scoring
+async function processStudentBatch(
+  students: any[],
+  job: any,
+  apiKey: string
+): Promise<any[]> {
+  const promises = students.map(async (student) => {
+    try {
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash-lite', // Faster model for batch processing
+          messages: [
+            {
+              role: 'system',
+              content: `Calculate job fit score (0-100). Return ONLY JSON: {"fit_score":85,"matching_skills":[],"missing_skills":[],"reasoning":"brief"}`
+            },
+            {
+              role: 'user',
+              content: `Job: ${job.title}, Required: ${(job.required_skills || []).join(',')}, Preferred: ${(job.preferred_skills || []).join(',')}
+Student: ${student.name}, Skills: ${(student.skills || []).join(',')}, CGPA: ${student.cgpa}`
+            }
+          ],
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const resultContent = data.choices[0].message.content;
+        const jsonMatch = resultContent.match(/\{[\s\S]*\}/);
+        const result = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(resultContent);
+
+        return {
+          student_id: student.id,
+          student_name: student.name,
+          fit_score: result.fit_score || 0,
+          matching_skills: result.matching_skills || [],
+          missing_skills: result.missing_skills || [],
+          reasoning: result.reasoning || '',
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error processing student ${student.id}:`, error);
+      return null;
+    }
+  });
+
+  const results = await Promise.all(promises);
+  return results.filter(r => r !== null);
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -27,88 +83,42 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get job posting
-    const { data: job, error: jobError } = await supabaseClient
-      .from('job_postings')
-      .select('*')
-      .eq('id', jobId)
-      .single();
+    // Parallel fetch job and students
+    const [jobResult, studentsResult] = await Promise.all([
+      supabaseClient
+        .from('job_postings')
+        .select('id, title, required_skills, preferred_skills, experience_level')
+        .eq('id', jobId)
+        .single(),
+      supabaseClient
+        .from('students')
+        .select('id, name, skills, cgpa, placement_readiness_score')
+        .in('id', studentIds || [])
+    ]);
 
-    if (jobError) throw jobError;
+    if (jobResult.error) throw jobResult.error;
+    if (studentsResult.error) throw studentsResult.error;
 
-    // Get students
-    const { data: students, error: studentsError } = await supabaseClient
-      .from('students')
-      .select('*')
-      .in('id', studentIds || []);
+    const job = jobResult.data;
+    const students = studentsResult.data || [];
 
-    if (studentsError) throw studentsError;
+    // Process all students in parallel (batch size of 5 for rate limiting)
+    const batchSize = 5;
+    const batches = [];
+    for (let i = 0; i < students.length; i += batchSize) {
+      batches.push(students.slice(i, i + batchSize));
+    }
 
-    const rankings = [];
-
-    for (const student of students || []) {
-      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [
-            {
-              role: 'system',
-              content: `You are an AI recruiter. Calculate job fit score (0-100) based on skill match.
-Return ONLY a valid JSON object:
-{
-  "fit_score": 85,
-  "matching_skills": ["skill1", "skill2"],
-  "missing_skills": ["skill1", "skill2"],
-  "reasoning": "Brief explanation"
-}`
-            },
-            {
-              role: 'user',
-              content: `Job Requirements:
-Title: ${job.title}
-Required Skills: ${JSON.stringify(job.required_skills || [])}
-Preferred Skills: ${JSON.stringify(job.preferred_skills || [])}
-Experience Level: ${job.experience_level}
-
-Candidate Profile:
-Name: ${student.name}
-Skills: ${JSON.stringify(student.skills || [])}
-Year: ${student.year}
-CGPA: ${student.cgpa}
-Placement Readiness: ${student.placement_readiness_score || 'N/A'}
-
-Calculate job fit score.`
-            }
-          ],
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const resultContent = data.choices[0].message.content;
-        const jsonMatch = resultContent.match(/\{[\s\S]*\}/);
-        const result = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(resultContent);
-
-        rankings.push({
-          student_id: student.id,
-          student_name: student.name,
-          fit_score: result.fit_score || 0,
-          matching_skills: result.matching_skills || [],
-          missing_skills: result.missing_skills || [],
-          reasoning: result.reasoning || '',
-        });
-      }
+    const allRankings: any[] = [];
+    for (const batch of batches) {
+      const batchResults = await processStudentBatch(batch, job, LOVABLE_API_KEY);
+      allRankings.push(...batchResults);
     }
 
     // Sort by fit score
-    rankings.sort((a, b) => b.fit_score - a.fit_score);
+    allRankings.sort((a, b) => b.fit_score - a.fit_score);
 
-    return new Response(JSON.stringify({ success: true, rankings }), {
+    return new Response(JSON.stringify({ success: true, rankings: allRankings }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error: any) {

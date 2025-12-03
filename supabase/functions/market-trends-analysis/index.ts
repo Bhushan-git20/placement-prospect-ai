@@ -27,45 +27,44 @@ serve(async (req) => {
 
     console.log('Analyzing market trends for:', { skillName, jobRole, months });
 
-    // Get historical trend data
-    const { data: historicalData, error: histError } = await supabaseClient
-      .from('job_market_trends')
-      .select('*')
-      .order('month_year', { ascending: false })
-      .limit(100);
+    // Parallel fetch historical and job data
+    const [historicalResult, jobsResult] = await Promise.all([
+      supabaseClient
+        .from('job_market_trends')
+        .select('month_year, skill_name, job_role, demand_score, growth_rate, avg_salary')
+        .order('month_year', { ascending: false })
+        .limit(50),
+      supabaseClient
+        .from('job_postings')
+        .select('title, required_skills, preferred_skills')
+        .eq('is_active', true)
+        .limit(100)
+    ]);
 
-    if (histError) {
-      console.error('Error fetching historical data:', histError);
-    }
+    const historicalData = historicalResult.data || [];
+    const jobPostings = jobsResult.data || [];
 
-    // Get current job postings data
-    const { data: jobPostings, error: jobsError } = await supabaseClient
-      .from('job_postings')
-      .select('*')
-      .eq('is_active', true);
-
-    if (jobsError) {
-      console.error('Error fetching job postings:', jobsError);
-    }
-
-    // Calculate skill demand from active job postings
+    // Calculate skill demand efficiently
     const skillDemandMap: Record<string, number> = {};
     const roleDemandMap: Record<string, number> = {};
     
-    jobPostings?.forEach(job => {
-      const allSkills = [...(job.required_skills || []), ...(job.preferred_skills || [])];
-      allSkills.forEach(skill => {
+    jobPostings.forEach(job => {
+      [...(job.required_skills || []), ...(job.preferred_skills || [])].forEach(skill => {
         skillDemandMap[skill] = (skillDemandMap[skill] || 0) + 1;
       });
-      
-      const title = job.title.toLowerCase();
-      roleDemandMap[title] = (roleDemandMap[title] || 0) + 1;
+      roleDemandMap[job.title.toLowerCase()] = (roleDemandMap[job.title.toLowerCase()] || 0) + 1;
     });
 
-    // Use AI to predict future trends
+    // Filter relevant trend data
     const trendData = skillName 
-      ? historicalData?.filter(d => d.skill_name === skillName) 
-      : historicalData?.filter(d => d.job_role.toLowerCase().includes(jobRole?.toLowerCase() || ''));
+      ? historicalData.filter(d => d.skill_name === skillName).slice(0, 12)
+      : historicalData.filter(d => d.job_role?.toLowerCase().includes(jobRole?.toLowerCase() || '')).slice(0, 12);
+
+    // Get top skills for context
+    const topSkills = Object.entries(skillDemandMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 15)
+      .map(([k, v]) => `${k}(${v})`).join(',');
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -74,45 +73,26 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-flash-lite', // Faster model
         messages: [
           {
             role: 'system',
-            content: `You are an expert job market analyst specializing in predicting technology trends and skill demands. 
-Analyze historical data and provide predictions for the next ${months} months.
-Return ONLY valid JSON with this structure:
-{
-  "predictions": [{"month": "YYYY-MM", "demandScore": number, "growthRate": number, "avgSalary": number}],
-  "insights": ["insight1", "insight2", ...],
-  "emergingSkills": ["skill1", "skill2", ...],
-  "decliningSkills": ["skill1", "skill2", ...],
-  "recommendation": "string"
-}`
+            content: `Job market analyst. Predict ${months} months. Return ONLY JSON: {"predictions":[{"month":"YYYY-MM","demandScore":0,"growthRate":0}],"insights":[],"emergingSkills":[],"decliningSkills":[],"recommendation":""}`
           },
           {
             role: 'user',
-            content: `Historical trend data: ${JSON.stringify(trendData?.slice(0, 24))}
-Current market data:
-- Active job postings: ${jobPostings?.length || 0}
-- Top skills in demand: ${Object.entries(skillDemandMap).sort((a, b) => b[1] - a[1]).slice(0, 20).map(([k, v]) => `${k}(${v})`).join(', ')}
-- Top roles in demand: ${Object.entries(roleDemandMap).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, v]) => `${k}(${v})`).join(', ')}
-
-Predict trends for: ${skillName ? `Skill: ${skillName}` : `Role: ${jobRole}`}`
+            content: `History: ${JSON.stringify(trendData.slice(0, 6))}
+Jobs: ${jobPostings.length}, TopSkills: ${topSkills}
+Predict: ${skillName ? `Skill:${skillName}` : `Role:${jobRole}`}`
           }
         ],
       }),
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'AI credits exhausted. Please add credits to continue.' }), {
-          status: 402,
+      if (response.status === 429 || response.status === 402) {
+        return new Response(JSON.stringify({ error: 'AI service unavailable' }), {
+          status: response.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -121,14 +101,12 @@ Predict trends for: ${skillName ? `Skill: ${skillName}` : `Role: ${jobRole}`}`
 
     const aiData = await response.json();
     const aiContent = aiData.choices[0].message.content;
-    
     const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
     const predictions = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(aiContent);
 
-    // Calculate statistical metrics
-    const recentTrends = trendData?.slice(0, 6) || [];
-    const avgGrowth = recentTrends.length > 0 
-      ? recentTrends.reduce((sum, t) => sum + (t.growth_rate || 0), 0) / recentTrends.length
+    // Calculate average growth
+    const avgGrowth = trendData.length > 0 
+      ? trendData.reduce((sum, t) => sum + (t.growth_rate || 0), 0) / trendData.length
       : 0;
 
     return new Response(
@@ -136,13 +114,13 @@ Predict trends for: ${skillName ? `Skill: ${skillName}` : `Role: ${jobRole}`}`
         success: true,
         data: {
           currentDemand: skillName ? skillDemandMap[skillName] || 0 : Object.values(roleDemandMap).reduce((a, b) => a + b, 0),
-          predictions: predictions.predictions,
-          insights: predictions.insights,
-          emergingSkills: predictions.emergingSkills,
-          decliningSkills: predictions.decliningSkills,
-          recommendation: predictions.recommendation,
+          predictions: predictions.predictions || [],
+          insights: predictions.insights || [],
+          emergingSkills: predictions.emergingSkills || [],
+          decliningSkills: predictions.decliningSkills || [],
+          recommendation: predictions.recommendation || '',
           historicalGrowth: avgGrowth,
-          dataPoints: recentTrends.length,
+          dataPoints: trendData.length,
           lastUpdated: new Date().toISOString()
         }
       }),

@@ -27,24 +27,26 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get student data
+    // Get student data first to get student_id for assessments
     const { data: student, error: studentError } = await supabaseClient
       .from('students')
-      .select('*')
+      .select('id, student_id, name, cgpa, year, department, skills, skill_gaps, resume_url')
       .eq('id', studentId)
       .single();
 
     if (studentError) throw studentError;
 
-    // Get student's assessment history
-    const { data: assessments, error: assessError } = await supabaseClient
+    // Fetch assessments in parallel after getting student_id
+    const { data: assessments } = await supabaseClient
       .from('assessments')
-      .select('*')
+      .select('score')
       .eq('student_id', student.student_id)
       .order('created_at', { ascending: false })
-      .limit(10);
+      .limit(5);
 
-    if (assessError) throw assessError;
+    const avgScore = assessments?.length 
+      ? (assessments.reduce((sum, a) => sum + (a.score || 0), 0) / assessments.length).toFixed(0)
+      : 'N/A';
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -53,34 +55,15 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-flash-lite', // Faster model
         messages: [
           {
             role: 'system',
-            content: `You are an AI placement analyst. Calculate a placement readiness score (0-100).
-Consider: CGPA, skills, assessments, experience, and market demand.
-Return ONLY a valid JSON object:
-{
-  "readiness_score": 85,
-  "strengths": ["strength1", "strength2"],
-  "areas_for_improvement": ["area1", "area2"],
-  "recommendations": ["rec1", "rec2"],
-  "confidence": "high|medium|low"
-}`
+            content: `Placement analyst. Score 0-100. Return ONLY JSON: {"readiness_score":85,"strengths":[],"areas_for_improvement":[],"recommendations":[],"confidence":"high"}`
           },
           {
             role: 'user',
-            content: `Student Profile:
-CGPA: ${student.cgpa || 'N/A'}
-Year: ${student.year}
-Department: ${student.department}
-Skills: ${JSON.stringify(student.skills || [])}
-Skill Gaps: ${JSON.stringify(student.skill_gaps || [])}
-Assessment Count: ${assessments?.length || 0}
-Average Assessment Score: ${assessments?.length ? (assessments.reduce((sum, a) => sum + (a.score || 0), 0) / assessments.length).toFixed(1) : 'N/A'}
-Resume Available: ${student.resume_url ? 'Yes' : 'No'}
-
-Calculate placement readiness score.`
+            content: `CGPA:${student.cgpa || 'N/A'}, Year:${student.year}, Dept:${student.department}, Skills:${(student.skills || []).length}, Gaps:${(student.skill_gaps || []).length}, Tests:${assessments?.length || 0}, AvgScore:${avgScore}, Resume:${student.resume_url ? 'Yes' : 'No'}`
           }
         ],
       }),
@@ -101,8 +84,8 @@ Calculate placement readiness score.`
     const jsonMatch = resultContent.match(/\{[\s\S]*\}/);
     const result = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(resultContent);
 
-    // Update student record
-    const { error: updateError } = await supabaseClient
+    // Update student record asynchronously
+    supabaseClient
       .from('students')
       .update({
         placement_readiness_score: result.readiness_score || 0,
@@ -110,11 +93,10 @@ Calculate placement readiness score.`
         recommendations: result.recommendations || [],
         last_analysis_date: new Date().toISOString(),
       })
-      .eq('id', studentId);
-
-    if (updateError) {
-      console.error('Error updating student:', updateError);
-    }
+      .eq('id', studentId)
+      .then(({ error }) => {
+        if (error) console.error('Error updating student:', error);
+      });
 
     return new Response(JSON.stringify({ success: true, result }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -27,23 +27,25 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get student data
-    const { data: student, error: studentError } = await supabaseClient
-      .from('students')
-      .select('*')
-      .eq('id', studentId)
-      .single();
+    // Parallel fetch student and trending skills
+    const [studentResult, skillsResult] = await Promise.all([
+      supabaseClient
+        .from('students')
+        .select('id, name, skills, preferred_roles, department')
+        .eq('id', studentId)
+        .single(),
+      supabaseClient
+        .from('skill_analysis')
+        .select('skill_name, trend, current_demand')
+        .order('current_demand', { ascending: false })
+        .limit(15)
+    ]);
 
-    if (studentError) throw studentError;
+    if (studentResult.error) throw studentResult.error;
+    if (skillsResult.error) throw skillsResult.error;
 
-    // Get top trending skills from job market
-    const { data: trendingSkills, error: skillsError } = await supabaseClient
-      .from('skill_analysis')
-      .select('skill_name, trend, current_demand')
-      .order('current_demand', { ascending: false })
-      .limit(20);
-
-    if (skillsError) throw skillsError;
+    const student = studentResult.data;
+    const trendingSkills = skillsResult.data;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -52,26 +54,17 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-flash-lite', // Faster model
         messages: [
           {
             role: 'system',
-            content: `You are a career advisor analyzing skill gaps. Compare student skills with market demand.
-Return ONLY a valid JSON object:
-{
-  "skill_gaps": ["skill1", "skill2", ...],
-  "strengths": ["strength1", "strength2", ...],
-  "recommendations": ["recommendation1", "recommendation2", ...],
-  "priority_skills": ["skill1", "skill2", ...]
-}`
+            content: `Career advisor. Compare skills with market. Return ONLY JSON: {"skill_gaps":[],"strengths":[],"recommendations":[],"priority_skills":[]}`
           },
           {
             role: 'user',
-            content: `Student Skills: ${JSON.stringify(student.skills || [])}
-Student Roles: ${JSON.stringify(student.preferred_roles || [])}
-Trending Market Skills: ${JSON.stringify(trendingSkills.map(s => s.skill_name))}
-
-Analyze skill gaps and provide recommendations.`
+            content: `Skills: ${(student.skills || []).join(',')}
+Roles: ${(student.preferred_roles || []).join(',')}
+Trending: ${trendingSkills.map(s => s.skill_name).join(',')}`
           }
         ],
       }),
@@ -92,8 +85,8 @@ Analyze skill gaps and provide recommendations.`
     const jsonMatch = analysisContent.match(/\{[\s\S]*\}/);
     const analysis = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(analysisContent);
 
-    // Update student record
-    const { error: updateError } = await supabaseClient
+    // Update student record asynchronously (don't wait)
+    supabaseClient
       .from('students')
       .update({
         skill_gaps: analysis.skill_gaps || [],
@@ -101,11 +94,10 @@ Analyze skill gaps and provide recommendations.`
         recommendations: analysis.recommendations || [],
         last_analysis_date: new Date().toISOString(),
       })
-      .eq('id', studentId);
-
-    if (updateError) {
-      console.error('Error updating student:', updateError);
-    }
+      .eq('id', studentId)
+      .then(({ error }) => {
+        if (error) console.error('Error updating student:', error);
+      });
 
     return new Response(JSON.stringify({ success: true, analysis }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -50,9 +50,9 @@ export default function Jobs() {
     } = await supabase.auth.getUser();
     if (user) {
       const {
-        data: profile
-      } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      setUserRole(profile?.role || '');
+        data: roleData
+      } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single();
+      setUserRole(roleData?.role || '');
     }
   };
   useEffect(() => {
@@ -285,11 +285,27 @@ export default function Jobs() {
 
               {/* Actions */}
               <div className="flex gap-3 pt-3 border-t border-border">
-                <Button className="flex-1 gradient-primary glow-hover">
+                <Button 
+                  className="flex-1 gradient-primary glow-hover"
+                  onClick={() => {
+                    toast({
+                      title: "Application Started",
+                      description: `Redirecting to apply for ${job.title} at ${job.company}`,
+                    });
+                  }}
+                >
                   Apply Now
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </Button>
-                <Button variant="outline">
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    toast({
+                      title: "Job Saved",
+                      description: `${job.title} has been saved to your list`,
+                    });
+                  }}
+                >
                   Save
                 </Button>
               </div>

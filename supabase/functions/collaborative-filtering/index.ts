@@ -7,6 +7,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Optimized Jaccard similarity calculation
+function calculateSimilarity(skills1: string[], skills2: string[]): number {
+  if (!skills1?.length || !skills2?.length) return 0;
+  
+  const set1 = new Set(skills1.map(s => s.toLowerCase()));
+  const set2 = new Set(skills2.map(s => s.toLowerCase()));
+  
+  let intersection = 0;
+  for (const skill of set1) {
+    if (set2.has(skill)) intersection++;
+  }
+  
+  const union = set1.size + set2.size - intersection;
+  return union > 0 ? intersection / union : 0;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -22,58 +38,49 @@ serve(async (req) => {
 
     console.log('Starting collaborative filtering for student:', studentId);
 
-    // Get student data
-    const { data: student, error: studentError } = await supabaseClient
-      .from('students')
-      .select('*')
-      .eq('id', studentId)
-      .single();
+    // Parallel fetch all required data
+    const [studentResult, allStudentsResult, transitionsResult, skillRelationsResult] = await Promise.all([
+      supabaseClient
+        .from('students')
+        .select('id, name, skills, preferred_roles, placement_status, placed_role, placed_company, package_lpa')
+        .eq('id', studentId)
+        .single(),
+      supabaseClient
+        .from('students')
+        .select('id, name, skills, placement_status, placed_role, placed_company, package_lpa')
+        .neq('id', studentId)
+        .limit(100),
+      supabaseClient
+        .from('career_transitions')
+        .select('from_role, to_role, required_skills, success_rate, avg_time_months, salary_change_percent')
+        .order('success_rate', { ascending: false })
+        .limit(20),
+      supabaseClient
+        .from('skill_relationships')
+        .select('skill_from, skill_to, relationship_type')
+        .limit(50)
+    ]);
 
-    if (studentError || !student) {
+    if (studentResult.error || !studentResult.data) {
       throw new Error('Student not found');
     }
 
-    // Find similar students based on skills overlap
-    const { data: allStudents, error: studentsError } = await supabaseClient
-      .from('students')
-      .select('*')
-      .neq('id', studentId);
+    const student = studentResult.data;
+    const allStudents = allStudentsResult.data || [];
+    const transitions = transitionsResult.data || [];
+    const skillRelations = skillRelationsResult.data || [];
 
-    if (studentsError) {
-      throw new Error('Error fetching students');
-    }
-
-    // Calculate similarity scores using Jaccard similarity
-    const similarStudents = allStudents.map(otherStudent => {
-      const studentSkills = new Set(student.skills || []);
-      const otherSkills = new Set(otherStudent.skills || []);
-      
-      const intersection = new Set([...studentSkills].filter(x => otherSkills.has(x)));
-      const union = new Set([...studentSkills, ...otherSkills]);
-      
-      const similarity = union.size > 0 ? intersection.size / union.size : 0;
-      
-      return {
+    // Calculate similarity scores efficiently
+    const similarStudents = allStudents
+      .map(otherStudent => ({
         ...otherStudent,
-        similarity
-      };
-    }).filter(s => s.similarity > 0.3) // Only keep students with >30% similarity
+        similarity: calculateSimilarity(student.skills || [], otherStudent.skills || [])
+      }))
+      .filter(s => s.similarity > 0.25)
       .sort((a, b) => b.similarity - a.similarity)
-      .slice(0, 10); // Top 10 similar students
+      .slice(0, 10);
 
-    // Get career transitions data
-    const currentRole = student.preferred_roles?.[0] || 'Junior Developer';
-    const { data: transitions, error: transitionsError } = await supabaseClient
-      .from('career_transitions')
-      .select('*')
-      .or(`from_role.eq.${currentRole},to_role.eq.${targetRole || ''}`)
-      .order('success_rate', { ascending: false });
-
-    if (transitionsError) {
-      console.error('Error fetching transitions:', transitionsError);
-    }
-
-    // Find recommended career paths based on similar students
+    // Find recommended career paths
     const recommendedPaths = similarStudents
       .filter(s => s.placement_status === 'placed' && s.placed_role)
       .map(s => ({
@@ -84,44 +91,36 @@ serve(async (req) => {
         similarity: s.similarity
       }));
 
-    // Get skill recommendations based on career transitions
+    // Get skill recommendations
+    const studentSkillsSet = new Set((student.skills || []).map((s: string) => s.toLowerCase()));
     const recommendedSkills = new Set<string>();
-    transitions?.forEach(t => {
+    
+    transitions.forEach(t => {
       t.required_skills?.forEach((skill: string) => {
-        if (!student.skills?.includes(skill)) {
+        if (!studentSkillsSet.has(skill.toLowerCase())) {
           recommendedSkills.add(skill);
         }
       });
     });
 
-    // Get skill relationships for learning path
-    const { data: skillRelations, error: relationsError } = await supabaseClient
-      .from('skill_relationships')
-      .select('*')
-      .in('skill_from', student.skills || []);
-
-    if (relationsError) {
-      console.error('Error fetching skill relations:', relationsError);
-    }
-
-    // Build learning path based on GNN-style relationships
-    const learningPath: any[] = [];
-    const skillsToLearn = Array.from(recommendedSkills);
-    
-    skillsToLearn.forEach(skill => {
-      const prerequisites = skillRelations?.filter(
-        r => r.skill_to === skill && r.relationship_type === 'prerequisite'
-      ) || [];
+    // Build learning path
+    const skillsToLearn = Array.from(recommendedSkills).slice(0, 10);
+    const learningPath = skillsToLearn.map(skill => {
+      const prerequisites = skillRelations
+        .filter(r => r.skill_to === skill && r.relationship_type === 'prerequisite')
+        .map(p => p.skill_from);
       
-      learningPath.push({
+      return {
         skill,
-        prerequisites: prerequisites.map(p => p.skill_from),
+        prerequisites,
         priority: prerequisites.length === 0 ? 'high' : 'medium'
-      });
-    });
+      };
+    }).sort((a, b) => a.priority === 'high' ? -1 : 1);
 
-    // Calculate recommended timeline
-    const avgTransitionTime = transitions?.reduce((sum, t) => sum + (t.avg_time_months || 0), 0) / (transitions?.length || 1);
+    // Calculate timeline
+    const avgTime = transitions.length > 0
+      ? transitions.reduce((sum, t) => sum + (t.avg_time_months || 0), 0) / transitions.length
+      : 12;
 
     return new Response(
       JSON.stringify({
@@ -133,12 +132,10 @@ serve(async (req) => {
             role: s.placed_role,
             similarity: Math.round(s.similarity * 100)
           })),
-          recommendedPaths,
-          recommendedSkills: Array.from(recommendedSkills),
-          learningPath: learningPath.sort((a, b) => 
-            a.priority === 'high' ? -1 : b.priority === 'high' ? 1 : 0
-          ),
-          careerTransitions: transitions?.slice(0, 5).map(t => ({
+          recommendedPaths: recommendedPaths.slice(0, 5),
+          recommendedSkills: Array.from(recommendedSkills).slice(0, 10),
+          learningPath,
+          careerTransitions: transitions.slice(0, 5).map(t => ({
             from: t.from_role,
             to: t.to_role,
             requiredSkills: t.required_skills,
@@ -146,7 +143,7 @@ serve(async (req) => {
             avgTime: t.avg_time_months,
             salaryChange: t.salary_change_percent
           })),
-          estimatedTimeline: Math.round(avgTransitionTime || 12),
+          estimatedTimeline: Math.round(avgTime),
           confidenceScore: similarStudents.length > 0 ? Math.round(similarStudents[0].similarity * 100) : 50
         }
       }),

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Search, Filter, Download, Mail, MapPin, GraduationCap, Briefcase } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { StudentCardSkeleton } from "@/components/ui/loading-skeletons";
 
 interface Student {
   id: string;
@@ -183,7 +184,11 @@ export default function Candidates() {
       {/* Student Cards */}
       <div className="grid gap-4">
         {isLoading ? (
-          <Card className="glass-card"><CardContent className="p-8 text-center text-muted-foreground">Loading candidates...</CardContent></Card>
+          <>
+            {[...Array(3)].map((_, i) => (
+              <StudentCardSkeleton key={i} />
+            ))}
+          </>
         ) : filteredStudents.length === 0 ? (
           <Card className="glass-card"><CardContent className="p-8 text-center text-muted-foreground">No candidates found</CardContent></Card>
         ) : (

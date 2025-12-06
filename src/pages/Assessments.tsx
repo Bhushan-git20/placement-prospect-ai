@@ -28,6 +28,7 @@ import {
   getAssessmentTypeColor,
   getDifficultyColor
 } from "@/lib/colorCoding";
+import { AssessmentCardSkeleton, StatsCardSkeleton } from "@/components/ui/loading-skeletons";
 
 interface Assessment {
   id: string;
@@ -111,9 +112,11 @@ export default function Assessments() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded-lg w-64 mb-2"></div>
-          <div className="h-4 bg-muted rounded w-96"></div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <StatsCardSkeleton key={i} />)}
+        </div>
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => <AssessmentCardSkeleton key={i} />)}
         </div>
       </div>
     );

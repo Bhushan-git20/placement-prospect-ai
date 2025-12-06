@@ -9,6 +9,7 @@ import { Briefcase, Search, MapPin, DollarSign, Calendar, Building2, TrendingUp,
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AddJobDialog } from "@/components/AddJobDialog";
 import { getIndustryColor, getJobTypeColor, getExperienceLevelColor } from "@/lib/colorCoding";
+import { JobCardSkeleton, StatsCardSkeleton } from "@/components/ui/loading-skeletons";
 interface JobPosting {
   id: string;
   title: string;
@@ -199,7 +200,13 @@ export default function Jobs() {
 
       {/* Jobs List */}
       <div className="space-y-4">
-        {filteredJobs.map(job => <Card key={job.id} className="glass-card card-hover transition-smooth">
+        {isLoading ? (
+          <>
+            {[...Array(3)].map((_, i) => (
+              <JobCardSkeleton key={i} />
+            ))}
+          </>
+        ) : filteredJobs.map(job => <Card key={job.id} className="glass-card card-hover transition-smooth">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -313,7 +320,7 @@ export default function Jobs() {
           </Card>)}
       </div>
 
-      {filteredJobs.length === 0 && <Card className="glass-card">
+      {!isLoading && filteredJobs.length === 0 && <Card className="glass-card">
           <CardContent className="py-12 text-center">
             <Briefcase className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No jobs found matching your criteria</p>

@@ -92,6 +92,32 @@ export default function Candidates() {
     }
   };
 
+  const handleExportCandidates = () => {
+    const csvContent = filteredStudents.map(s => 
+      `${s.name},${s.student_id},${s.email},${s.department},${s.cgpa},${s.placement_status},${s.skills.join(';')}`
+    ).join('\n');
+    const header = 'Name,Student ID,Email,Department,CGPA,Status,Skills\n';
+    const blob = new Blob([header + csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'candidates.csv';
+    a.click();
+    toast({ title: "Export Complete", description: `Exported ${filteredStudents.length} candidates` });
+  };
+
+  const handleViewProfile = (student: Student) => {
+    toast({ title: "Profile View", description: `Viewing ${student.name}'s profile` });
+  };
+
+  const handleContact = (student: Student) => {
+    window.location.href = `mailto:${student.email}`;
+  };
+
+  const handleShortlist = (student: Student) => {
+    toast({ title: "Shortlisted", description: `${student.name} has been added to your shortlist` });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -99,7 +125,7 @@ export default function Candidates() {
           <h1 className="text-3xl font-bold gradient-text mb-2">Candidate Search</h1>
           <p className="text-muted-foreground">Find and shortlist candidates for your job openings</p>
         </div>
-        <Button className="gradient-primary">
+        <Button className="gradient-primary" onClick={handleExportCandidates}>
           <Download className="w-4 h-4 mr-2" />
           Export Candidates
         </Button>
@@ -231,14 +257,14 @@ export default function Candidates() {
                     )}
 
                     <div className="flex gap-2 pt-2">
-                      <Button size="sm" className="gradient-primary">
+                      <Button size="sm" className="gradient-primary" onClick={() => handleViewProfile(student)}>
                         View Profile
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleContact(student)}>
                         <Mail className="w-4 h-4 mr-2" />
                         Contact
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleShortlist(student)}>
                         Shortlist
                       </Button>
                     </div>

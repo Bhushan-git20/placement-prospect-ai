@@ -9,6 +9,7 @@ import { Users, Briefcase, TrendingUp, Award, Target, BookOpen, MessageSquare, B
 import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-dashboard.jpg";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { DashboardSkeleton } from "@/components/ui/loading-skeletons";
 interface User {
   id: string;
   full_name: string;
@@ -325,15 +326,7 @@ export default function Dashboard() {
     return actions;
   };
   if (isLoading) {
-    return <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded-lg w-64 mb-2"></div>
-          <div className="h-4 bg-muted rounded w-96"></div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => <div key={i} className="h-32 bg-muted rounded-lg animate-pulse"></div>)}
-        </div>
-      </div>;
+    return <DashboardSkeleton />;
   }
   const roleBasedStats = getRoleBasedStats();
   const quickActions = getQuickActions();

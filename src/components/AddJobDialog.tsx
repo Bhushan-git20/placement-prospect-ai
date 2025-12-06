@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { jobPostingSchema } from "@/lib/validationSchemas";
+import { z } from "zod";
 
 interface AddJobDialogProps {
   open: boolean;
@@ -18,6 +20,7 @@ interface AddJobDialogProps {
 export function AddJobDialog({ open, onOpenChange, onJobAdded }: AddJobDialogProps) {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   
   const [newJob, setNewJob] = useState({
     title: "",
@@ -33,21 +36,37 @@ export function AddJobDialog({ open, onOpenChange, onJobAdded }: AddJobDialogPro
     description: ""
   });
 
+  const validateField = (field: string, value: string) => {
+    try {
+      const partialSchema = jobPostingSchema.pick({ [field]: true } as any);
+      partialSchema.parse({ [field]: value });
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setErrors(prev => ({ ...prev, [field]: error.errors[0]?.message || "" }));
+      }
+    }
+  };
+
   const handleAddJob = async () => {
     setIsSaving(true);
+    setErrors({});
+
     try {
+      const validatedData = jobPostingSchema.parse(newJob);
+      
       const { error } = await supabase.from('job_postings').insert({
-        title: newJob.title,
-        company: newJob.company,
-        location: newJob.location,
-        job_type: newJob.job_type,
-        experience_level: newJob.experience_level,
-        industry: newJob.industry,
-        salary_min: newJob.salary_min ? parseInt(newJob.salary_min) : null,
-        salary_max: newJob.salary_max ? parseInt(newJob.salary_max) : null,
-        required_skills: newJob.required_skills.split(',').map(s => s.trim()).filter(Boolean),
-        preferred_skills: newJob.preferred_skills.split(',').map(s => s.trim()).filter(Boolean),
-        description: newJob.description || null,
+        title: validatedData.title,
+        company: validatedData.company,
+        location: validatedData.location,
+        job_type: validatedData.job_type,
+        experience_level: validatedData.experience_level,
+        industry: validatedData.industry,
+        salary_min: validatedData.salary_min,
+        salary_max: validatedData.salary_max,
+        required_skills: validatedData.required_skills.split(',').map(s => s.trim()).filter(Boolean),
+        preferred_skills: validatedData.preferred_skills?.split(',').map(s => s.trim()).filter(Boolean) || [],
+        description: validatedData.description || null,
         is_active: true,
         source: 'Internal Posting'
       });
@@ -67,11 +86,26 @@ export function AddJobDialog({ open, onOpenChange, onJobAdded }: AddJobDialogPro
       });
       onJobAdded();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to post job",
-        variant: "destructive",
-      });
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.errors.forEach(err => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+        toast({
+          title: "Validation Error",
+          description: "Please fix the errors in the form",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to post job",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSaving(false);
     }
@@ -91,18 +125,28 @@ export function AddJobDialog({ open, onOpenChange, onJobAdded }: AddJobDialogPro
               <Input
                 id="title"
                 value={newJob.title}
-                onChange={(e) => setNewJob({...newJob, title: e.target.value})}
+                onChange={(e) => {
+                  setNewJob({...newJob, title: e.target.value});
+                  validateField("title", e.target.value);
+                }}
                 placeholder="Software Engineer"
+                className={errors.title ? "border-destructive" : ""}
               />
+              {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="company">Company *</Label>
               <Input
                 id="company"
                 value={newJob.company}
-                onChange={(e) => setNewJob({...newJob, company: e.target.value})}
+                onChange={(e) => {
+                  setNewJob({...newJob, company: e.target.value});
+                  validateField("company", e.target.value);
+                }}
                 placeholder="Tech Corp"
+                className={errors.company ? "border-destructive" : ""}
               />
+              {errors.company && <p className="text-xs text-destructive">{errors.company}</p>}
             </div>
           </div>
           
@@ -112,18 +156,28 @@ export function AddJobDialog({ open, onOpenChange, onJobAdded }: AddJobDialogPro
               <Input
                 id="location"
                 value={newJob.location}
-                onChange={(e) => setNewJob({...newJob, location: e.target.value})}
+                onChange={(e) => {
+                  setNewJob({...newJob, location: e.target.value});
+                  validateField("location", e.target.value);
+                }}
                 placeholder="Bangalore, India"
+                className={errors.location ? "border-destructive" : ""}
               />
+              {errors.location && <p className="text-xs text-destructive">{errors.location}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="industry">Industry *</Label>
               <Input
                 id="industry"
                 value={newJob.industry}
-                onChange={(e) => setNewJob({...newJob, industry: e.target.value})}
+                onChange={(e) => {
+                  setNewJob({...newJob, industry: e.target.value});
+                  validateField("industry", e.target.value);
+                }}
                 placeholder="Technology"
+                className={errors.industry ? "border-destructive" : ""}
               />
+              {errors.industry && <p className="text-xs text-destructive">{errors.industry}</p>}
             </div>
           </div>
 
@@ -185,10 +239,15 @@ export function AddJobDialog({ open, onOpenChange, onJobAdded }: AddJobDialogPro
             <Textarea
               id="required_skills"
               value={newJob.required_skills}
-              onChange={(e) => setNewJob({...newJob, required_skills: e.target.value})}
+              onChange={(e) => {
+                setNewJob({...newJob, required_skills: e.target.value});
+                validateField("required_skills", e.target.value);
+              }}
               placeholder="React, TypeScript, Node.js"
               rows={2}
+              className={errors.required_skills ? "border-destructive" : ""}
             />
+            {errors.required_skills && <p className="text-xs text-destructive">{errors.required_skills}</p>}
           </div>
 
           <div className="space-y-2">
@@ -210,14 +269,16 @@ export function AddJobDialog({ open, onOpenChange, onJobAdded }: AddJobDialogPro
               onChange={(e) => setNewJob({...newJob, description: e.target.value})}
               placeholder="Describe the role, responsibilities, and requirements..."
               rows={4}
+              className={errors.description ? "border-destructive" : ""}
             />
+            {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
           </div>
         </div>
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button 
             onClick={handleAddJob}
-            disabled={isSaving || !newJob.title || !newJob.company || !newJob.location || !newJob.required_skills}
+            disabled={isSaving}
             className="gradient-primary"
           >
             {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}

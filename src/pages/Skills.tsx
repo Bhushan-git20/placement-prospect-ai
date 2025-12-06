@@ -14,6 +14,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { SkillsPageSkeleton } from "@/components/ui/loading-skeletons";
 
 interface SkillAnalysis {
   id: string;
@@ -103,14 +104,7 @@ export default function Skills() {
   }));
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded-lg w-64 mb-2"></div>
-          <div className="h-4 bg-muted rounded w-96"></div>
-        </div>
-      </div>
-    );
+    return <SkillsPageSkeleton />;
   }
 
   return (

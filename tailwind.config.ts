@@ -126,6 +126,25 @@ export default {
         "pulseGlow": {
           "0%": { boxShadow: "0 0 20px hsl(234 89% 64% / 0.15)" },
           "100%": { boxShadow: "0 0 40px hsl(234 89% 64% / 0.35)" }
+        },
+        "shake": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-4px)" },
+          "20%, 40%, 60%, 80%": { transform: "translateX(4px)" }
+        },
+        "error-pulse": {
+          "0%": { boxShadow: "0 0 0 0 hsl(0 84% 60% / 0.4)" },
+          "70%": { boxShadow: "0 0 0 8px hsl(0 84% 60% / 0)" },
+          "100%": { boxShadow: "0 0 0 0 hsl(0 84% 60% / 0)" }
+        },
+        "error-fade-in": {
+          "0%": { opacity: "0", transform: "translateY(-8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" }
+        },
+        "success-pulse": {
+          "0%": { boxShadow: "0 0 0 0 hsl(142 76% 36% / 0.4)" },
+          "70%": { boxShadow: "0 0 0 8px hsl(142 76% 36% / 0)" },
+          "100%": { boxShadow: "0 0 0 0 hsl(142 76% 36% / 0)" }
         }
       },
       animation: {
@@ -139,6 +158,10 @@ export default {
         "slide-out-right": "slide-out-right 0.3s ease-out",
         "float": "float 6s ease-in-out infinite",
         "pulse-glow": "pulseGlow 2s ease-in-out infinite alternate",
+        "shake": "shake 0.5s ease-in-out",
+        "error-pulse": "error-pulse 0.6s ease-out",
+        "error-fade-in": "error-fade-in 0.3s ease-out",
+        "success-pulse": "success-pulse 0.6s ease-out",
       },
     },
   },

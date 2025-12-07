@@ -240,6 +240,23 @@
   .link-hover {
     @apply transition-colors duration-200 hover:text-primary;
   }
+
+  /* Form Validation Error Styles */
+  .input-error {
+    @apply border-destructive ring-1 ring-destructive/30 animate-shake;
+  }
+  
+  .input-success {
+    @apply border-success ring-1 ring-success/30;
+  }
+  
+  .error-message {
+    @apply text-destructive text-sm font-medium animate-error-fade-in flex items-center gap-1;
+  }
+  
+  .field-error-highlight {
+    @apply relative after:absolute after:inset-0 after:rounded-md after:animate-error-pulse after:pointer-events-none;
+  }
 }
 
 /* Custom Keyframes */

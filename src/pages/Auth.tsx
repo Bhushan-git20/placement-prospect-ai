@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Award, Loader2, Mail, Lock, User, UserCheck } from "lucide-react";
+import { Award, Loader2, Mail, Lock, User, UserCheck, AlertCircle } from "lucide-react";
 import { z } from "zod";
 
 const signUpSchema = z.object({
@@ -23,11 +23,17 @@ const signInSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+type SignInErrors = { email?: string; password?: string };
+type SignUpErrors = { full_name?: string; email?: string; password?: string; role?: string };
+
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("signin");
+  const [signInErrors, setSignInErrors] = useState<SignInErrors>({});
+  const [signUpErrors, setSignUpErrors] = useState<SignUpErrors>({});
+  const [shakeFields, setShakeFields] = useState<Record<string, boolean>>({});
 
   const [signInForm, setSignInForm] = useState({
     email: "",
@@ -42,7 +48,6 @@ export default function Auth() {
   });
 
   useEffect(() => {
-    // Check if user is already logged in
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -51,7 +56,6 @@ export default function Auth() {
     };
     checkAuth();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'SIGNED_IN' && session) {
@@ -63,8 +67,24 @@ export default function Auth() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const triggerShake = (fields: string[]) => {
+    const newShake: Record<string, boolean> = {};
+    fields.forEach(f => newShake[f] = true);
+    setShakeFields(newShake);
+    setTimeout(() => setShakeFields({}), 500);
+  };
+
+  const clearSignInError = (field: keyof SignInErrors) => {
+    setSignInErrors(prev => ({ ...prev, [field]: undefined }));
+  };
+
+  const clearSignUpError = (field: keyof SignUpErrors) => {
+    setSignUpErrors(prev => ({ ...prev, [field]: undefined }));
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSignInErrors({});
     setIsLoading(true);
 
     try {
@@ -77,6 +97,8 @@ export default function Auth() {
 
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
+          setSignInErrors({ email: "Invalid credentials", password: "Invalid credentials" });
+          triggerShake(['signin-email', 'signin-password']);
           toast({
             title: "Invalid credentials",
             description: "Please check your email and password and try again.",
@@ -98,6 +120,15 @@ export default function Auth() {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
+        const fieldErrors: SignInErrors = {};
+        const errorFields: string[] = [];
+        error.errors.forEach(err => {
+          const field = err.path[0] as keyof SignInErrors;
+          fieldErrors[field] = err.message;
+          errorFields.push(`signin-${field}`);
+        });
+        setSignInErrors(fieldErrors);
+        triggerShake(errorFields);
         toast({
           title: "Validation error",
           description: error.errors[0].message,
@@ -117,6 +148,7 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSignUpErrors({});
     setIsLoading(true);
 
     try {
@@ -133,7 +165,6 @@ export default function Auth() {
         }
       });
 
-      // Insert role into user_roles table
       if (data.user && !error) {
         const { error: roleError } = await supabase
           .from('user_roles')
@@ -149,6 +180,8 @@ export default function Auth() {
 
       if (error) {
         if (error.message.includes('User already registered')) {
+          setSignUpErrors({ email: "Account already exists" });
+          triggerShake(['signup-email']);
           toast({
             title: "Account exists",
             description: "An account with this email already exists. Please sign in instead.",
@@ -171,6 +204,15 @@ export default function Auth() {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
+        const fieldErrors: SignUpErrors = {};
+        const errorFields: string[] = [];
+        error.errors.forEach(err => {
+          const field = err.path[0] as keyof SignUpErrors;
+          fieldErrors[field] = err.message;
+          errorFields.push(`signup-${field}`);
+        });
+        setSignUpErrors(fieldErrors);
+        triggerShake(errorFields);
         toast({
           title: "Validation error",
           description: error.errors[0].message,
@@ -188,10 +230,17 @@ export default function Auth() {
     }
   };
 
+  const getInputClassName = (fieldId: string, hasError: boolean) => {
+    const baseClass = "transition-all duration-200 focus:glow-primary";
+    if (hasError) {
+      return `${baseClass} input-error ${shakeFields[fieldId] ? 'animate-shake' : ''}`;
+    }
+    return baseClass;
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo & Branding */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
             <Award className="w-8 h-8 text-white" />
@@ -226,11 +275,20 @@ export default function Auth() {
                       type="email"
                       placeholder="Enter your email"
                       value={signInForm.email}
-                      onChange={(e) => setSignInForm(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) => {
+                        setSignInForm(prev => ({ ...prev, email: e.target.value }));
+                        clearSignInError('email');
+                      }}
                       disabled={isLoading}
-                      className="transition-smooth focus:glow-primary"
+                      className={getInputClassName('signin-email', !!signInErrors.email)}
                       required
                     />
+                    {signInErrors.email && (
+                      <p className="error-message">
+                        <AlertCircle className="w-3 h-3" />
+                        {signInErrors.email}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signin-password" className="flex items-center gap-2">
@@ -242,11 +300,20 @@ export default function Auth() {
                       type="password"
                       placeholder="Enter your password"
                       value={signInForm.password}
-                      onChange={(e) => setSignInForm(prev => ({ ...prev, password: e.target.value }))}
+                      onChange={(e) => {
+                        setSignInForm(prev => ({ ...prev, password: e.target.value }));
+                        clearSignInError('password');
+                      }}
                       disabled={isLoading}
-                      className="transition-smooth focus:glow-primary"
+                      className={getInputClassName('signin-password', !!signInErrors.password)}
                       required
                     />
+                    {signInErrors.password && (
+                      <p className="error-message">
+                        <AlertCircle className="w-3 h-3" />
+                        {signInErrors.password}
+                      </p>
+                    )}
                   </div>
                   <Button 
                     type="submit" 
@@ -277,11 +344,20 @@ export default function Auth() {
                       type="text"
                       placeholder="Enter your full name"
                       value={signUpForm.full_name}
-                      onChange={(e) => setSignUpForm(prev => ({ ...prev, full_name: e.target.value }))}
+                      onChange={(e) => {
+                        setSignUpForm(prev => ({ ...prev, full_name: e.target.value }));
+                        clearSignUpError('full_name');
+                      }}
                       disabled={isLoading}
-                      className="transition-smooth focus:glow-primary"
+                      className={getInputClassName('signup-full_name', !!signUpErrors.full_name)}
                       required
                     />
+                    {signUpErrors.full_name && (
+                      <p className="error-message">
+                        <AlertCircle className="w-3 h-3" />
+                        {signUpErrors.full_name}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email" className="flex items-center gap-2">
@@ -293,11 +369,20 @@ export default function Auth() {
                       type="email"
                       placeholder="Enter your email"
                       value={signUpForm.email}
-                      onChange={(e) => setSignUpForm(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) => {
+                        setSignUpForm(prev => ({ ...prev, email: e.target.value }));
+                        clearSignUpError('email');
+                      }}
                       disabled={isLoading}
-                      className="transition-smooth focus:glow-primary"
+                      className={getInputClassName('signup-email', !!signUpErrors.email)}
                       required
                     />
+                    {signUpErrors.email && (
+                      <p className="error-message">
+                        <AlertCircle className="w-3 h-3" />
+                        {signUpErrors.email}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password" className="flex items-center gap-2">
@@ -309,11 +394,20 @@ export default function Auth() {
                       type="password"
                       placeholder="Create a password (min. 6 characters)"
                       value={signUpForm.password}
-                      onChange={(e) => setSignUpForm(prev => ({ ...prev, password: e.target.value }))}
+                      onChange={(e) => {
+                        setSignUpForm(prev => ({ ...prev, password: e.target.value }));
+                        clearSignUpError('password');
+                      }}
                       disabled={isLoading}
-                      className="transition-smooth focus:glow-primary"
+                      className={getInputClassName('signup-password', !!signUpErrors.password)}
                       required
                     />
+                    {signUpErrors.password && (
+                      <p className="error-message">
+                        <AlertCircle className="w-3 h-3" />
+                        {signUpErrors.password}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-role" className="flex items-center gap-2">

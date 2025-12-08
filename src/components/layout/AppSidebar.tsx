@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, Users, Briefcase, BarChart3, BookOpen, MessageSquare, Settings, Database, Target, Award, LogOut, User, GraduationCap, Brain } from "lucide-react";
+import { Home, Users, Briefcase, BarChart3, BookOpen, MessageSquare, Settings, Database, Target, Award, LogOut, User, GraduationCap, Brain, UserCircle } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +31,12 @@ const menuItems: MenuItem[] = [{
   url: "/students",
   icon: Users,
   roles: ["admin", "faculty"],
+  color: "cyan"
+}, {
+  title: "My Profile",
+  url: "/my-profile",
+  icon: UserCircle,
+  roles: ["user"],
   color: "cyan"
 }, {
   title: "Job Market",

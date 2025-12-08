@@ -182,3 +182,11 @@ export const getDifficultyColor = (difficulty: string): BadgeVariant => {
   
   return diffMap[difficulty] || "secondary";
 };
+
+// Score Color CSS Class Mapping (for text color)
+export const getScoreColor = (score: number): string => {
+  if (score >= 80) return "text-green-600";
+  if (score >= 60) return "text-yellow-600";
+  if (score >= 40) return "text-orange-600";
+  return "text-red-600";
+};

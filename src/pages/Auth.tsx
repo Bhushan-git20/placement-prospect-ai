@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Award, Loader2, Mail, Lock, User, UserCheck, AlertCircle } from "lucide-react";
+import { Award, Loader2, Mail, Lock, User, UserCheck, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 
 const signUpSchema = z.object({
@@ -23,17 +23,26 @@ const signInSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+const resetPasswordSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
 type SignInErrors = { email?: string; password?: string };
 type SignUpErrors = { full_name?: string; email?: string; password?: string; role?: string };
+
+type AuthView = 'signin' | 'signup' | 'forgot-password' | 'reset-success';
 
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("signin");
+  const [authView, setAuthView] = useState<AuthView>('signin');
   const [signInErrors, setSignInErrors] = useState<SignInErrors>({});
   const [signUpErrors, setSignUpErrors] = useState<SignUpErrors>({});
   const [shakeFields, setShakeFields] = useState<Record<string, boolean>>({});
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetEmailError, setResetEmailError] = useState("");
 
   const [signInForm, setSignInForm] = useState({
     email: "",
@@ -230,6 +239,42 @@ export default function Auth() {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetEmailError("");
+    setIsLoading(true);
+
+    try {
+      const validated = resetPasswordSchema.parse({ email: resetEmail });
+
+      const { error } = await supabase.auth.resetPasswordForEmail(validated.email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAuthView('reset-success');
+      toast({
+        title: "Reset email sent",
+        description: "Check your inbox for password reset instructions.",
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setResetEmailError(error.errors[0].message);
+        triggerShake(['reset-email']);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const getInputClassName = (fieldId: string, hasError: boolean) => {
     const baseClass = "transition-all duration-200 focus:glow-primary";
     if (hasError) {
@@ -237,6 +282,122 @@ export default function Auth() {
     }
     return baseClass;
   };
+
+  // Forgot Password View
+  if (authView === 'forgot-password') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
+              <Award className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold gradient-text mb-2">PlacePredict</h1>
+            <p className="text-muted-foreground">Reset your password</p>
+          </div>
+
+          <Card className="glass-card glow-hover">
+            <CardHeader className="text-center pb-4">
+              <CardTitle className="text-xl">Forgot Password</CardTitle>
+              <CardDescription className="text-sm">
+                Enter your email and we'll send you a reset link
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email" className="flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Email Address
+                  </Label>
+                  <Input
+                    id="reset-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={resetEmail}
+                    onChange={(e) => {
+                      setResetEmail(e.target.value);
+                      setResetEmailError("");
+                    }}
+                    disabled={isLoading}
+                    className={getInputClassName('reset-email', !!resetEmailError)}
+                    required
+                  />
+                  {resetEmailError && (
+                    <p className="error-message">
+                      <AlertCircle className="w-3 h-3" />
+                      {resetEmailError}
+                    </p>
+                  )}
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full gradient-primary glow-hover transition-smooth"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send Reset Link"
+                  )}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setAuthView('signin')}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Sign In
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Reset Success View
+  if (authView === 'reset-success') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold gradient-text mb-2">Check Your Email</h1>
+            <p className="text-muted-foreground">We've sent password reset instructions to:</p>
+            <p className="font-medium mt-2">{resetEmail}</p>
+          </div>
+
+          <Card className="glass-card">
+            <CardContent className="pt-6 space-y-4">
+              <p className="text-sm text-center text-muted-foreground">
+                Click the link in the email to reset your password. If you don't see the email, check your spam folder.
+              </p>
+              <Button
+                className="w-full"
+                onClick={() => {
+                  setAuthView('signin');
+                  setResetEmail("");
+                }}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Sign In
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -315,6 +476,18 @@ export default function Auth() {
                       </p>
                     )}
                   </div>
+
+                  <div className="text-right">
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="text-sm p-0 h-auto text-primary"
+                      onClick={() => setAuthView('forgot-password')}
+                    >
+                      Forgot password?
+                    </Button>
+                  </div>
+
                   <Button 
                     type="submit" 
                     className="w-full gradient-primary glow-hover transition-smooth"

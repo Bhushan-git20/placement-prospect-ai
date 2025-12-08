@@ -9,11 +9,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Users, Search, Filter, TrendingUp, Award, Mail, Phone, MapPin, Briefcase, Target, BookOpen, Plus, Loader2, GitMerge, Clipboard } from "lucide-react";
+import { Users, Search, Filter, TrendingUp, Award, Mail, Phone, MapPin, Briefcase, Target, BookOpen, Plus, Loader2, GitMerge, Clipboard, Upload } from "lucide-react";
 import { StudentJobMatchDialog } from "@/components/StudentJobMatchDialog";
 import { StudentJobApplicationDialog } from "@/components/StudentJobApplicationDialog";
+import { BulkStudentImportDialog } from "@/components/BulkStudentImportDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getPlacementStatusColor, getReadinessScoreColor, getDepartmentColor, getPlacementStatusLabel, getReadinessScoreLabel } from "@/lib/colorCoding";
+
 interface Student {
   id: string;
   student_id: string;
@@ -33,6 +35,7 @@ interface Student {
   preferred_roles: string[];
   resume_url: string | null;
 }
+
 export default function Students() {
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
@@ -43,6 +46,7 @@ export default function Students() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showMatchDialog, setShowMatchDialog] = useState(false);
   const [showJobApplicationDialog, setShowJobApplicationDialog] = useState(false);
+  const [showBulkImportDialog, setShowBulkImportDialog] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<{
     id: string;
     name: string;
@@ -218,10 +222,14 @@ export default function Students() {
             Manage and track student profiles, placement readiness, and career progress
           </p>
         </div>
-        {(userRole === 'admin' || userRole === 'faculty') && <div className="flex gap-2">
+        {(userRole === 'admin' || userRole === 'faculty') && <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={() => setShowMatchDialog(true)}>
               <GitMerge className="w-4 h-4 mr-2" />
               Match Students
+            </Button>
+            <Button variant="outline" onClick={() => setShowBulkImportDialog(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Bulk Import
             </Button>
             <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
               <DialogTrigger asChild>
@@ -342,6 +350,7 @@ export default function Students() {
           </div>}
 
       <StudentJobMatchDialog open={showMatchDialog} onOpenChange={setShowMatchDialog} />
+      <BulkStudentImportDialog open={showBulkImportDialog} onOpenChange={setShowBulkImportDialog} onImported={fetchStudents} />
 
       {selectedStudent && <StudentJobApplicationDialog open={showJobApplicationDialog} onOpenChange={setShowJobApplicationDialog} studentId={selectedStudent.id} studentName={selectedStudent.name} />}
       </div>

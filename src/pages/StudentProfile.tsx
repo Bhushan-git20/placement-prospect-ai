@@ -11,10 +11,11 @@ import { Separator } from "@/components/ui/separator";
 import { 
   User, GraduationCap, Mail, MapPin, Building2, FileText, 
   Briefcase, Target, TrendingUp, Award, Clock, CheckCircle2,
-  XCircle, AlertCircle, Loader2, BookOpen
+  XCircle, AlertCircle, Loader2, BookOpen, Pencil
 } from "lucide-react";
 import { CareerPathRecommendations } from "@/components/CareerPathRecommendations";
 import { PlacementReadinessCard } from "@/components/PlacementReadinessCard";
+import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { getPlacementStatusColor, getScoreColor } from "@/lib/colorCoding";
 
 interface Student {
@@ -74,6 +75,7 @@ export default function StudentProfile() {
   const [student, setStudent] = useState<Student | null>(null);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   useEffect(() => {
     fetchStudentProfile();
@@ -271,13 +273,27 @@ export default function StudentProfile() {
         </div>
       </div>
 
+      {/* Edit Profile Dialog */}
+      {student && (
+        <EditProfileDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          student={student}
+          onSaved={fetchStudentProfile}
+        />
+      )}
+
       {/* Skills Section */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Target className="h-5 w-5" />
             Skills & Goals
           </CardTitle>
+          <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
+            <Pencil className="h-4 w-4 mr-2" />
+            Edit Profile
+          </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>

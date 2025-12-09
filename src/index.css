@@ -2,96 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
-/* PlacePredict AI Design System - Glassmorphism with Deep Blue/Purple Theme */
+/* PlacePredict AI Design System - Professional Light Theme */
 
 @layer base {
   :root {
-    /* Primary Brand Colors - Vibrant Blue to Purple */
-    --brand-primary: 234 89% 64%;     /* Rich Blue #4F46E5 */
-    --brand-secondary: 260 84% 59%;   /* Vibrant Purple #7C3AED */
-    --brand-tertiary: 217 92% 66%;    /* Bright Blue #2563EB */
-    --brand-cyan: 191 91% 55%;        /* Bright Cyan #06B6D4 */
-    --brand-pink: 330 81% 60%;        /* Hot Pink #EC4899 */
-    --brand-orange: 25 95% 53%;       /* Vibrant Orange #F97316 */
+    /* Primary Brand Colors - Professional Blue */
+    --brand-primary: 220 70% 50%;       /* Deep Blue #2563EB */
+    --brand-secondary: 215 60% 42%;     /* Navy Blue #1E40AF */
+    --brand-tertiary: 210 100% 45%;     /* Bright Blue #0284C7 */
+    --brand-cyan: 195 85% 45%;          /* Teal #0891B2 */
+    --brand-pink: 340 75% 55%;          /* Rose #E11D48 */
+    --brand-orange: 24 90% 50%;         /* Orange #EA580C */
     
-    /* Neutral Colors - Dark Theme */
-    --background: 222 47% 11%;         /* Dark Blue-Gray */
-    --background-secondary: 224 71% 4%; /* Very Dark */
-    --foreground: 210 40% 98%;         /* Light foreground text */
-    --muted: 215 16% 25%;              /* Dark Muted */
-    --muted-foreground: 215 16% 65%;   /* Light Gray */
+    /* Neutral Colors - Light Professional Theme */
+    --background: 210 20% 98%;          /* Clean Off-White */
+    --background-secondary: 210 15% 95%; /* Light Gray */
+    --foreground: 220 25% 15%;          /* Dark Slate */
+    --muted: 210 15% 93%;               /* Light Muted */
+    --muted-foreground: 220 10% 45%;    /* Medium Gray */
 
-    /* Card & Surface Colors with Glassmorphism */
-    --card: 222 47% 11% / 0.6;         /* Semi-transparent dark */
-    --card-foreground: 210 40% 98%;
-    --card-border: 234 89% 64% / 0.2;  /* Colored Border */
+    /* Card & Surface Colors */
+    --card: 0 0% 100%;                  /* Pure White */
+    --card-foreground: 220 25% 15%;
+    --card-border: 220 15% 88%;
     
     /* Glass Effect Colors */
-    --glass-primary: 234 89% 64% / 0.08;   /* Primary with 8% opacity */
-    --glass-secondary: 260 84% 59% / 0.08; /* Secondary with 8% opacity */
-    --glass-border: 214 32% 91% / 0.5;     /* Light border with opacity */
+    --glass-primary: 220 70% 50% / 0.05;
+    --glass-secondary: 215 60% 42% / 0.05;
+    --glass-border: 220 15% 85%;
     
     /* Interactive Colors */
-    --primary: 234 89% 64%;
+    --primary: 220 70% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --accent: 260 84% 59%;
+    --secondary: 210 15% 93%;
+    --secondary-foreground: 220 25% 15%;
+    --accent: 210 100% 45%;
     --accent-foreground: 0 0% 100%;
     
     /* Status Colors */
-    --success: 142 76% 36%;            /* Green #16A34A */
+    --success: 152 70% 38%;             /* Green */
     --success-foreground: 0 0% 100%;
-    --success-light: 142 76% 92%;      /* Light Green */
-    --warning: 38 92% 50%;             /* Orange #F59E0B */
+    --success-light: 152 70% 94%;
+    --warning: 38 92% 50%;              /* Amber */
     --warning-foreground: 0 0% 100%;
-    --warning-light: 38 92% 92%;       /* Light Orange */
-    --destructive: 0 84% 60%;          /* Red #EF4444 */
+    --warning-light: 38 92% 94%;
+    --destructive: 0 72% 51%;           /* Red */
     --destructive-foreground: 0 0% 100%;
-    --destructive-light: 0 84% 92%;    /* Light Red */
-    --info: 199 89% 48%;               /* Blue Info #0EA5E9 */
+    --destructive-light: 0 72% 95%;
+    --info: 200 85% 48%;                /* Sky Blue */
     --info-foreground: 0 0% 100%;
-    --info-light: 199 89% 92%;         /* Light Blue */
+    --info-light: 200 85% 94%;
     
     /* UI Element Colors */
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 234 89% 64%;
+    --popover-foreground: 220 25% 15%;
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 220 70% 50%;
     
-    /* Gradient Definitions - Bright */
-    --gradient-primary: linear-gradient(135deg, hsl(234 89% 64%), hsl(260 84% 59%));
-    --gradient-secondary: linear-gradient(135deg, hsl(217 92% 66%), hsl(234 89% 64%));
-    --gradient-tertiary: linear-gradient(135deg, hsl(260 84% 59%), hsl(280 100% 65%));
-    --gradient-subtle: linear-gradient(135deg, hsl(210 40% 98%), hsl(220 13% 97%));
-    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%));
-    --gradient-warning: linear-gradient(135deg, hsl(38 92% 50%), hsl(25 95% 53%));
-    --gradient-info: linear-gradient(135deg, hsl(199 89% 48%), hsl(191 91% 55%));
-    --gradient-rainbow: linear-gradient(135deg, hsl(234 89% 64%), hsl(260 84% 59%), hsl(330 81% 60%), hsl(25 95% 53%));
-    --gradient-sunset: linear-gradient(135deg, hsl(330 81% 60%), hsl(38 92% 50%), hsl(25 95% 53%));
-    --gradient-ocean: linear-gradient(135deg, hsl(191 91% 55%), hsl(199 89% 48%), hsl(217 92% 66%));
+    /* Gradient Definitions - Professional */
+    --gradient-primary: linear-gradient(135deg, hsl(220 70% 50%), hsl(215 60% 42%));
+    --gradient-secondary: linear-gradient(135deg, hsl(210 100% 45%), hsl(220 70% 50%));
+    --gradient-tertiary: linear-gradient(135deg, hsl(215 60% 42%), hsl(220 70% 40%));
+    --gradient-subtle: linear-gradient(135deg, hsl(210 20% 98%), hsl(210 15% 95%));
+    --gradient-success: linear-gradient(135deg, hsl(152 70% 38%), hsl(160 65% 42%));
+    --gradient-warning: linear-gradient(135deg, hsl(38 92% 50%), hsl(30 90% 48%));
+    --gradient-info: linear-gradient(135deg, hsl(200 85% 48%), hsl(195 85% 45%));
+    --gradient-rainbow: linear-gradient(135deg, hsl(220 70% 50%), hsl(195 85% 45%), hsl(152 70% 38%));
+    --gradient-sunset: linear-gradient(135deg, hsl(340 75% 55%), hsl(24 90% 50%));
+    --gradient-ocean: linear-gradient(135deg, hsl(195 85% 45%), hsl(200 85% 48%), hsl(210 100% 45%));
     
-    /* Shadow Definitions - Softer for Light Theme */
-    --shadow-glass: 0 8px 32px hsl(234 89% 64% / 0.1);
-    --shadow-glow: 0 0 40px hsl(234 89% 64% / 0.2);
-    --shadow-card: 0 4px 24px hsl(222 47% 11% / 0.08);
+    /* Shadow Definitions - Subtle & Professional */
+    --shadow-glass: 0 4px 20px hsl(220 70% 50% / 0.08);
+    --shadow-glow: 0 0 30px hsl(220 70% 50% / 0.15);
+    --shadow-card: 0 2px 12px hsl(220 25% 15% / 0.06);
     
     /* Animation Timing */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     
-    /* Sidebar Colors - Light */
+    /* Sidebar Colors */
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 234 89% 64%;
+    --sidebar-foreground: 220 25% 15%;
+    --sidebar-primary: 220 70% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 96%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 234 89% 64%;
+    --sidebar-accent: 210 15% 95%;
+    --sidebar-accent-foreground: 220 25% 15%;
+    --sidebar-border: 220 15% 90%;
+    --sidebar-ring: 220 70% 50%;
     
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
 }
 
@@ -101,38 +101,26 @@
   }
 
   body {
+    @apply bg-background text-foreground;
     background: 
-      radial-gradient(circle at 20% 50%, hsl(234 89% 64% / 0.25), transparent 50%),
-      radial-gradient(circle at 80% 20%, hsl(260 84% 59% / 0.25), transparent 50%),
-      radial-gradient(circle at 40% 80%, hsl(191 91% 55% / 0.2), transparent 40%),
-      radial-gradient(circle at 90% 70%, hsl(330 81% 60% / 0.2), transparent 40%),
-      radial-gradient(circle at 10% 90%, hsl(25 95% 53% / 0.18), transparent 35%),
-      radial-gradient(circle at 60% 40%, hsl(142 76% 36% / 0.15), transparent 45%),
-      linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(224 71% 4%) 50%, hsl(224 47% 8%) 100%);
+      radial-gradient(ellipse at 0% 0%, hsl(220 70% 50% / 0.03), transparent 50%),
+      radial-gradient(ellipse at 100% 0%, hsl(195 85% 45% / 0.03), transparent 50%),
+      radial-gradient(ellipse at 50% 100%, hsl(152 70% 38% / 0.02), transparent 50%),
+      hsl(210 20% 98%);
     background-attachment: fixed;
     min-height: 100vh;
   }
 
-  /* Glassmorphism Base Classes - Dark Theme */
+  /* Professional Card Style */
   .glass-card {
-    background: linear-gradient(
-      135deg,
-      hsl(234 89% 64% / 0.12),
-      hsl(260 84% 59% / 0.08)
-    );
-    backdrop-filter: blur(20px);
-    border: 1px solid hsl(234 89% 64% / 0.2);
-    box-shadow: var(--shadow-glass), inset 0 1px 0 hsl(0 0% 100% / 0.1);
+    background: hsl(0 0% 100%);
+    border: 1px solid hsl(220 15% 90%);
+    box-shadow: var(--shadow-card);
   }
   
   .glass-nav {
-    background: linear-gradient(
-      135deg,
-      hsl(222 47% 11% / 0.95),
-      hsl(234 89% 64% / 0.08)
-    );
-    backdrop-filter: blur(20px);
-    border-right: 1px solid hsl(234 89% 64% / 0.2);
+    background: hsl(0 0% 100%);
+    border-right: 1px solid hsl(220 15% 90%);
   }
   
   /* Interactive Gradient Backgrounds */
@@ -186,7 +174,7 @@
     -webkit-text-fill-color: transparent;
   }
   
-  /* Glow Effects */
+  /* Glow Effects - Subtle */
   .glow-primary {
     box-shadow: var(--shadow-glow);
   }
@@ -228,12 +216,12 @@
   
   /* Interactive Card Hover */
   .card-hover {
-    @apply hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 hover:border-primary/20;
+    @apply hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 hover:border-primary/20;
   }
   
   /* Button Hover Effects */
   .btn-hover {
-    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95;
+    @apply transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98];
   }
   
   /* Link Hover Effects */
@@ -262,10 +250,10 @@
 /* Custom Keyframes */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes pulseGlow {
-  0% { box-shadow: 0 0 20px hsl(234 89% 64% / 0.15); }
-  100% { box-shadow: 0 0 40px hsl(234 89% 64% / 0.35); }
+  0% { box-shadow: 0 0 15px hsl(220 70% 50% / 0.1); }
+  100% { box-shadow: 0 0 25px hsl(220 70% 50% / 0.2); }
 }

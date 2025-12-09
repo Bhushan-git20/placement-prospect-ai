@@ -106,14 +106,52 @@
   body {
     @apply bg-background text-foreground antialiased;
     background: 
-      radial-gradient(ellipse at 0% 0%, hsl(245 85% 60% / 0.08), transparent 50%),
-      radial-gradient(ellipse at 100% 0%, hsl(280 75% 55% / 0.06), transparent 50%),
-      radial-gradient(ellipse at 50% 50%, hsl(200 95% 50% / 0.04), transparent 60%),
-      radial-gradient(ellipse at 0% 100%, hsl(175 85% 45% / 0.05), transparent 50%),
-      radial-gradient(ellipse at 100% 100%, hsl(335 85% 58% / 0.04), transparent 50%),
-      linear-gradient(180deg, hsl(240 20% 98%) 0%, hsl(245 25% 96%) 100%);
+      radial-gradient(ellipse at 0% 0%, hsl(245 85% 60% / 0.18), transparent 45%),
+      radial-gradient(ellipse at 100% 0%, hsl(280 75% 55% / 0.15), transparent 45%),
+      radial-gradient(ellipse at 50% 30%, hsl(200 95% 50% / 0.12), transparent 50%),
+      radial-gradient(ellipse at 0% 100%, hsl(175 85% 45% / 0.14), transparent 45%),
+      radial-gradient(ellipse at 100% 100%, hsl(335 85% 58% / 0.12), transparent 45%),
+      radial-gradient(ellipse at 50% 70%, hsl(40 95% 50% / 0.08), transparent 40%),
+      linear-gradient(180deg, hsl(245 30% 97%) 0%, hsl(280 20% 95%) 50%, hsl(200 25% 96%) 100%);
     background-attachment: fixed;
     min-height: 100vh;
+  }
+  
+  /* Page-specific vibrant backgrounds */
+  .page-gradient-dashboard {
+    background: 
+      radial-gradient(ellipse at 20% 20%, hsl(245 85% 60% / 0.2), transparent 40%),
+      radial-gradient(ellipse at 80% 30%, hsl(280 75% 55% / 0.18), transparent 40%),
+      radial-gradient(ellipse at 60% 80%, hsl(335 85% 58% / 0.15), transparent 45%),
+      radial-gradient(ellipse at 10% 90%, hsl(175 85% 45% / 0.16), transparent 40%);
+  }
+  
+  .page-gradient-analytics {
+    background: 
+      radial-gradient(ellipse at 10% 10%, hsl(200 95% 50% / 0.22), transparent 45%),
+      radial-gradient(ellipse at 90% 20%, hsl(245 85% 60% / 0.18), transparent 40%),
+      radial-gradient(ellipse at 50% 90%, hsl(175 85% 45% / 0.2), transparent 45%);
+  }
+  
+  .page-gradient-jobs {
+    background: 
+      radial-gradient(ellipse at 0% 0%, hsl(160 85% 40% / 0.2), transparent 45%),
+      radial-gradient(ellipse at 100% 30%, hsl(200 95% 50% / 0.18), transparent 40%),
+      radial-gradient(ellipse at 30% 100%, hsl(245 85% 60% / 0.15), transparent 45%);
+  }
+  
+  .page-gradient-students {
+    background: 
+      radial-gradient(ellipse at 20% 0%, hsl(280 75% 55% / 0.2), transparent 45%),
+      radial-gradient(ellipse at 80% 50%, hsl(335 85% 58% / 0.16), transparent 40%),
+      radial-gradient(ellipse at 10% 80%, hsl(245 85% 60% / 0.18), transparent 45%);
+  }
+  
+  .page-gradient-assessments {
+    background: 
+      radial-gradient(ellipse at 30% 10%, hsl(40 95% 50% / 0.18), transparent 45%),
+      radial-gradient(ellipse at 70% 40%, hsl(25 95% 55% / 0.15), transparent 40%),
+      radial-gradient(ellipse at 20% 90%, hsl(335 85% 58% / 0.18), transparent 45%);
   }
 
   /* Vibrant Glass Card Style */

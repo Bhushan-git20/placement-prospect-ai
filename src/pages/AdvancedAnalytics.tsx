@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 // AppLayout removed - will be added via route
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Network, TrendingUp, Users, Zap } from "lucide-react";
+import { Brain, Network, TrendingUp, Users, Zap, BarChart3 } from "lucide-react";
 import { BERTSkillExtractor } from "@/components/BERTSkillExtractor";
 import { SkillGraphVisualizer } from "@/components/SkillGraphVisualizer";
 import { CareerPathRecommendations } from "@/components/CareerPathRecommendations";
 import { MarketTrendsPredictor } from "@/components/MarketTrendsPredictor";
+import { PlacementAnalyticsDashboard } from "@/components/PlacementAnalyticsDashboard";
 import { supabase } from "@/integrations/supabase/client";
 
 const AdvancedAnalytics = () => {
@@ -51,8 +52,12 @@ const AdvancedAnalytics = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="bert" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs defaultValue="analytics" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
             <TabsTrigger value="bert" className="flex items-center gap-2">
               <Brain className="h-4 w-4" />
               BERT NER
@@ -70,6 +75,19 @@ const AdvancedAnalytics = () => {
               Market Trends
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="analytics" className="space-y-4">
+            <div className="border-l-4 border-indigo-500 bg-indigo-50 dark:bg-indigo-950/20 p-4 rounded-r-lg">
+              <h3 className="font-semibold flex items-center gap-2 mb-1">
+                <BarChart3 className="h-5 w-5" />
+                Placement Analytics Dashboard
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Comprehensive analytics with placement trends, department comparisons, and success metrics.
+              </p>
+            </div>
+            <PlacementAnalyticsDashboard />
+          </TabsContent>
 
           <TabsContent value="bert" className="space-y-4">
             <div className="border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-950/20 p-4 rounded-r-lg">

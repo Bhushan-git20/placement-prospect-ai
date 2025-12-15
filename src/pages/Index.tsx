@@ -169,7 +169,7 @@ const Index = () => {
             <span className="text-lg font-bold gradient-text">PlacePredict</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2024 PlacePredict. AI-Powered Placement Analysis System.
+            © 2025 PlacePredict. AI-Powered Placement Analysis System.
           </p>
         </div>
       </footer>

@@ -1,17 +1,5 @@
 project_id = "luplkmdzkfscsqojpvxu"
 
-[functions.resume-parser]
-verify_jwt = true
-
-[functions.skill-gap-analysis]
-verify_jwt = true
-
-[functions.placement-readiness]
-verify_jwt = true
-
-[functions.job-fit-scoring]
-verify_jwt = true
-
 [api]
 enabled = true
 port = 54321
@@ -72,17 +60,32 @@ inspector_port = 8083
 [analytics]
 enabled = false
 
-[functions.ai-analysis]
-verify_jwt = true
-
-[functions.career-chat]
+[functions.daily-updates]
 verify_jwt = false
 
-[functions.collaborative-filtering]
+[functions.ai-analysis]
+verify_jwt = false
+
+[functions.skill-gap-analysis]
+verify_jwt = false
+
+[functions.placement-readiness]
 verify_jwt = false
 
 [functions.market-trends-analysis]
 verify_jwt = false
 
+[functions.collaborative-filtering]
+verify_jwt = false
+
+[functions.job-fit-scoring]
+verify_jwt = false
+
 [functions.bert-skill-extraction]
+verify_jwt = false
+
+[functions.career-chat]
+verify_jwt = false
+
+[functions.resume-parser]
 verify_jwt = false

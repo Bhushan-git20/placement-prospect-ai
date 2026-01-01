@@ -302,6 +302,36 @@ export type Database = {
         }
         Relationships: []
       }
+      role_audit_log: {
+        Row: {
+          action: string
+          changed_at: string | null
+          changed_by: string
+          id: string
+          new_role: Database["public"]["Enums"]["app_role"]
+          old_role: Database["public"]["Enums"]["app_role"] | null
+          target_user_id: string
+        }
+        Insert: {
+          action: string
+          changed_at?: string | null
+          changed_by: string
+          id?: string
+          new_role: Database["public"]["Enums"]["app_role"]
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          target_user_id: string
+        }
+        Update: {
+          action?: string
+          changed_at?: string | null
+          changed_by?: string
+          id?: string
+          new_role?: Database["public"]["Enums"]["app_role"]
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       skill_analysis: {
         Row: {
           average_salary_impact: number | null
@@ -531,6 +561,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_view_salary: { Args: never; Returns: boolean }
       check_user_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -1,14 +1,29 @@
 import { z } from "zod";
 
-// Common validation patterns
-const emailSchema = z.string().email("Invalid email address").max(255, "Email too long");
-const nameSchema = z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long").trim();
-const passwordSchema = z.string().min(6, "Password must be at least 6 characters").max(100, "Password too long");
+// Common validation patterns with enhanced security
+const emailSchema = z.string()
+  .trim()
+  .toLowerCase()
+  .email("Invalid email address")
+  .max(255, "Email too long");
+
+const nameSchema = z.string()
+  .trim()
+  .min(2, "Name must be at least 2 characters")
+  .max(100, "Name too long")
+  .regex(/^[a-zA-Z\s'-]+$/, "Name contains invalid characters");
+
+const passwordSchema = z.string()
+  .min(8, "Password must be at least 8 characters")
+  .max(100, "Password too long")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/[0-9]/, "Password must contain at least one number");
 
 // Auth schemas
 export const signInSchema = z.object({
   email: emailSchema,
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(1, "Password is required").max(100, "Password too long"),
 });
 
 export const signUpSchema = z.object({

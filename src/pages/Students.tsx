@@ -130,11 +130,14 @@ export default function Students() {
     try {
       let resume_url = null;
 
-      // Upload resume if provided
+      // Upload resume if provided - use user folder for proper RLS isolation
       if (resumeFile) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+        
         const fileExt = resumeFile.name.split('.').pop();
         const fileName = `${newStudent.student_id}-${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const filePath = `${user.id}/${fileName}`;
         const {
           error: uploadError,
           data

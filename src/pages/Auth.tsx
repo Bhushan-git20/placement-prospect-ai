@@ -11,20 +11,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Award, Loader2, Mail, Lock, User, UserCheck, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 
+// Enhanced validation schemas with proper length limits and sanitization
 const signUpSchema = z.object({
-  full_name: z.string().min(2, "Full name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  full_name: z.string()
+    .trim()
+    .min(2, "Full name must be at least 2 characters")
+    .max(100, "Full name must be less than 100 characters")
+    .regex(/^[a-zA-Z\s'-]+$/, "Full name contains invalid characters"),
+  email: z.string()
+    .trim()
+    .toLowerCase()
+    .email("Invalid email address")
+    .max(255, "Email must be less than 255 characters"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .max(100, "Password must be less than 100 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
   role: z.enum(["user", "faculty", "recruiter", "admin"]),
 });
 
 const signInSchema = z.object({
-  email: z.string().email("Invalid email address"),  
-  password: z.string().min(1, "Password is required"),
+  email: z.string()
+    .trim()
+    .toLowerCase()
+    .email("Invalid email address")
+    .max(255, "Email must be less than 255 characters"),
+  password: z.string()
+    .min(1, "Password is required")
+    .max(100, "Password too long"),
 });
 
 const resetPasswordSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.string()
+    .trim()
+    .toLowerCase()
+    .email("Invalid email address")
+    .max(255, "Email must be less than 255 characters"),
 });
 
 type SignInErrors = { email?: string; password?: string };

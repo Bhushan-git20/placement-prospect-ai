@@ -74,9 +74,18 @@ serve(async (req) => {
       );
     }
 
-    console.log('Authenticated user:', user.id);
+    // Role-based authorization: faculty and admin can analyze any student
+    // Students can only use career_chat for themselves
+    const { data: roleData } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
 
-    // Validate input
+    const userRole = roleData?.role || 'user';
+    const isFacultyOrAdmin = ['admin', 'faculty'].includes(userRole);
+
+    // Parse body early to check type for authorization
     const body = await req.json();
     const validationResult = requestSchema.safeParse(body);
     if (!validationResult.success) {
@@ -88,6 +97,35 @@ serve(async (req) => {
     }
 
     const { type, data, context } = validationResult.data;
+
+    // For student_analysis and assessment_feedback, require faculty/admin role
+    if ((type === 'student_analysis' || type === 'assessment_feedback') && !isFacultyOrAdmin) {
+      console.warn('User lacks authorization for analysis type:', type, 'User:', user.id);
+      return new Response(
+        JSON.stringify({ error: 'Access denied. Faculty or admin role required for this analysis.' }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // For career_chat, verify user is a student or staff
+    if (type === 'career_chat') {
+      const { data: studentData } = await supabaseClient
+        .from('students')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!studentData && !isFacultyOrAdmin) {
+        console.warn('User lacks student record for career chat:', user.id);
+        return new Response(
+          JSON.stringify({ error: 'Access denied. Students, faculty, or admin only.' }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    console.log('Authorized user:', user.id, 'Role:', userRole, 'Analysis type:', type);
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {

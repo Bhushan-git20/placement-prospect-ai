@@ -46,7 +46,31 @@ serve(async (req) => {
       );
     }
 
-    console.log('Authenticated user:', user.id);
+    // Verify user has a valid student record or is faculty/admin
+    const { data: studentData } = await supabaseClient
+      .from('students')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    const { data: roleData } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    const isStudentOrStaff = studentData || 
+      (roleData && ['admin', 'faculty'].includes(roleData.role));
+
+    if (!isStudentOrStaff) {
+      console.warn('User lacks authorization for career chat:', user.id);
+      return new Response(
+        JSON.stringify({ error: 'Access denied. Students, faculty, or admin only.' }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log('Authorized user:', user.id, 'Role:', roleData?.role || 'student');
 
     // Validate input
     const body = await req.json();

@@ -431,6 +431,7 @@ export type Database = {
           target_companies: string[] | null
           university: string
           updated_at: string | null
+          user_id: string | null
           year: number
         }
         Insert: {
@@ -459,6 +460,7 @@ export type Database = {
           target_companies?: string[] | null
           university: string
           updated_at?: string | null
+          user_id?: string | null
           year: number
         }
         Update: {
@@ -487,6 +489,7 @@ export type Database = {
           target_companies?: string[] | null
           university?: string
           updated_at?: string | null
+          user_id?: string | null
           year?: number
         }
         Relationships: []

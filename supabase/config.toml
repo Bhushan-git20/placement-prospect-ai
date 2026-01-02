@@ -64,28 +64,28 @@ enabled = false
 verify_jwt = false
 
 [functions.ai-analysis]
-verify_jwt = false
+verify_jwt = true
 
 [functions.skill-gap-analysis]
-verify_jwt = false
+verify_jwt = true
 
 [functions.placement-readiness]
-verify_jwt = false
+verify_jwt = true
 
 [functions.market-trends-analysis]
-verify_jwt = false
+verify_jwt = true
 
 [functions.collaborative-filtering]
-verify_jwt = false
+verify_jwt = true
 
 [functions.job-fit-scoring]
-verify_jwt = false
+verify_jwt = true
 
 [functions.bert-skill-extraction]
-verify_jwt = false
+verify_jwt = true
 
 [functions.career-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.resume-parser]
-verify_jwt = false
+verify_jwt = true

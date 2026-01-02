@@ -1,11 +1,18 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const requestSchema = z.object({
+  jobId: z.string().uuid('Invalid job ID format'),
+  studentIds: z.array(z.string().uuid('Invalid student ID format')).max(50, 'Too many students')
+});
 
 // Process students in parallel batches for faster scoring
 async function processStudentBatch(
@@ -22,7 +29,7 @@ async function processStudentBatch(
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash-lite', // Faster model for batch processing
+          model: 'google/gemini-2.5-flash-lite',
           messages: [
             {
               role: 'system',
@@ -69,7 +76,45 @@ serve(async (req) => {
   }
 
   try {
-    const { jobId, studentIds } = await req.json();
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication failed:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Authenticated user:', user.id);
+
+    // Validate input
+    const body = await req.json();
+    const validationResult = requestSchema.safeParse(body);
+    if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validationResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { jobId, studentIds } = validationResult.data;
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
@@ -78,19 +123,19 @@ serve(async (req) => {
 
     console.log('Calculating job fit scores for job:', jobId, 'students:', studentIds?.length);
 
-    const supabaseClient = createClient(
+    const serviceClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     // Parallel fetch job and students
     const [jobResult, studentsResult] = await Promise.all([
-      supabaseClient
+      serviceClient
         .from('job_postings')
         .select('id, title, required_skills, preferred_skills, experience_level')
         .eq('id', jobId)
         .single(),
-      supabaseClient
+      serviceClient
         .from('students')
         .select('id, name, skills, cgpa, placement_readiness_score')
         .in('id', studentIds || [])

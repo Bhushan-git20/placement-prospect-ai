@@ -1,11 +1,17 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const requestSchema = z.object({
+  studentId: z.string().uuid('Invalid student ID format')
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,7 +19,45 @@ serve(async (req) => {
   }
 
   try {
-    const { studentId } = await req.json();
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication failed:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Authenticated user:', user.id);
+
+    // Validate input
+    const body = await req.json();
+    const validationResult = requestSchema.safeParse(body);
+    if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validationResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { studentId } = validationResult.data;
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
@@ -22,22 +66,39 @@ serve(async (req) => {
 
     console.log('Calculating placement readiness for student:', studentId);
 
-    const supabaseClient = createClient(
+    // Verify user has access
+    const { data: userRoles } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+    
+    const isAdminOrFaculty = userRoles?.some(r => r.role === 'admin' || r.role === 'faculty');
+
+    const serviceClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     // Get student data first to get student_id for assessments
-    const { data: student, error: studentError } = await supabaseClient
+    const { data: student, error: studentError } = await serviceClient
       .from('students')
-      .select('id, student_id, name, cgpa, year, department, skills, skill_gaps, resume_url')
+      .select('id, student_id, name, email, cgpa, year, department, skills, skill_gaps, resume_url')
       .eq('id', studentId)
       .single();
 
     if (studentError) throw studentError;
 
+    // Verify user has access to this student
+    if (!isAdminOrFaculty && student.email !== user.email) {
+      console.error('User does not have permission to access this student');
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: You can only access your own student record' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Fetch assessments in parallel after getting student_id
-    const { data: assessments } = await supabaseClient
+    const { data: assessments } = await serviceClient
       .from('assessments')
       .select('score')
       .eq('student_id', student.student_id)
@@ -55,7 +116,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite', // Faster model
+        model: 'google/gemini-2.5-flash-lite',
         messages: [
           {
             role: 'system',
@@ -85,7 +146,7 @@ serve(async (req) => {
     const result = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(resultContent);
 
     // Update student record asynchronously
-    supabaseClient
+    serviceClient
       .from('students')
       .update({
         placement_readiness_score: result.readiness_score || 0,

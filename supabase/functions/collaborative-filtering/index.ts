@@ -1,11 +1,18 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const requestSchema = z.object({
+  studentId: z.string().uuid('Invalid student ID format'),
+  targetRole: z.string().max(100).optional()
+});
 
 // Optimized Jaccard similarity calculation
 function calculateSimilarity(skills1: string[], skills2: string[]): number {
@@ -29,9 +36,47 @@ serve(async (req) => {
   }
 
   try {
-    const { studentId, targetRole } = await req.json();
-    
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication failed:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Authenticated user:', user.id);
+
+    // Validate input
+    const body = await req.json();
+    const validationResult = requestSchema.safeParse(body);
+    if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validationResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { studentId, targetRole } = validationResult.data;
+    
+    const serviceClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
@@ -40,22 +85,22 @@ serve(async (req) => {
 
     // Parallel fetch all required data
     const [studentResult, allStudentsResult, transitionsResult, skillRelationsResult] = await Promise.all([
-      supabaseClient
+      serviceClient
         .from('students')
-        .select('id, name, skills, preferred_roles, placement_status, placed_role, placed_company, package_lpa')
+        .select('id, name, email, skills, preferred_roles, placement_status, placed_role, placed_company, package_lpa')
         .eq('id', studentId)
         .single(),
-      supabaseClient
+      serviceClient
         .from('students')
         .select('id, name, skills, placement_status, placed_role, placed_company, package_lpa')
         .neq('id', studentId)
         .limit(100),
-      supabaseClient
+      serviceClient
         .from('career_transitions')
         .select('from_role, to_role, required_skills, success_rate, avg_time_months, salary_change_percent')
         .order('success_rate', { ascending: false })
         .limit(20),
-      supabaseClient
+      serviceClient
         .from('skill_relationships')
         .select('skill_from, skill_to, relationship_type')
         .limit(50)
@@ -66,6 +111,23 @@ serve(async (req) => {
     }
 
     const student = studentResult.data;
+
+    // Verify user has access
+    const { data: userRoles } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+    
+    const isAdminOrFaculty = userRoles?.some(r => r.role === 'admin' || r.role === 'faculty');
+    
+    if (!isAdminOrFaculty && student.email !== user.email) {
+      console.error('User does not have permission to access this student');
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: You can only access your own student record' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const allStudents = allStudentsResult.data || [];
     const transitions = transitionsResult.data || [];
     const skillRelations = skillRelationsResult.data || [];

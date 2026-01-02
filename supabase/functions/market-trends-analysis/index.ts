@@ -1,11 +1,19 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const requestSchema = z.object({
+  skillName: z.string().max(100).optional(),
+  jobRole: z.string().max(100).optional(),
+  months: z.number().min(1).max(24).optional().default(12)
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,14 +21,52 @@ serve(async (req) => {
   }
 
   try {
-    const { skillName, jobRole, months = 12 } = await req.json();
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication failed:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Authenticated user:', user.id);
+
+    // Validate input
+    const body = await req.json();
+    const validationResult = requestSchema.safeParse(body);
+    if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validationResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { skillName, jobRole, months } = validationResult.data;
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const supabaseClient = createClient(
+    const serviceClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
@@ -29,12 +75,12 @@ serve(async (req) => {
 
     // Parallel fetch historical and job data
     const [historicalResult, jobsResult] = await Promise.all([
-      supabaseClient
+      serviceClient
         .from('job_market_trends')
         .select('month_year, skill_name, job_role, demand_score, growth_rate, avg_salary')
         .order('month_year', { ascending: false })
         .limit(50),
-      supabaseClient
+      serviceClient
         .from('job_postings')
         .select('title, required_skills, preferred_skills')
         .eq('is_active', true)
@@ -73,7 +119,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite', // Faster model
+        model: 'google/gemini-2.5-flash-lite',
         messages: [
           {
             role: 'system',

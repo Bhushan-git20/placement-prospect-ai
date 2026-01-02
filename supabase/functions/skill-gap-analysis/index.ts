@@ -1,11 +1,17 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const requestSchema = z.object({
+  studentId: z.string().uuid('Invalid student ID format')
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,7 +19,45 @@ serve(async (req) => {
   }
 
   try {
-    const { studentId } = await req.json();
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication failed:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Authenticated user:', user.id);
+
+    // Validate input
+    const body = await req.json();
+    const validationResult = requestSchema.safeParse(body);
+    if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validationResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { studentId } = validationResult.data;
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
@@ -22,19 +66,28 @@ serve(async (req) => {
 
     console.log('Analyzing skill gaps for student:', studentId);
 
-    const supabaseClient = createClient(
+    // Verify user has access to this student
+    const { data: userRoles } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+    
+    const isAdminOrFaculty = userRoles?.some(r => r.role === 'admin' || r.role === 'faculty');
+
+    // Use service role for data access after authorization check
+    const serviceClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     // Parallel fetch student and trending skills
     const [studentResult, skillsResult] = await Promise.all([
-      supabaseClient
+      serviceClient
         .from('students')
-        .select('id, name, skills, preferred_roles, department')
+        .select('id, name, email, skills, preferred_roles, department')
         .eq('id', studentId)
         .single(),
-      supabaseClient
+      serviceClient
         .from('skill_analysis')
         .select('skill_name, trend, current_demand')
         .order('current_demand', { ascending: false })
@@ -45,6 +98,16 @@ serve(async (req) => {
     if (skillsResult.error) throw skillsResult.error;
 
     const student = studentResult.data;
+
+    // Verify user has access to this student (either admin/faculty or owns the record)
+    if (!isAdminOrFaculty && student.email !== user.email) {
+      console.error('User does not have permission to access this student');
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: You can only access your own student record' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const trendingSkills = skillsResult.data;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -54,7 +117,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite', // Faster model
+        model: 'google/gemini-2.5-flash-lite',
         messages: [
           {
             role: 'system',
@@ -86,7 +149,7 @@ Trending: ${trendingSkills.map(s => s.skill_name).join(',')}`
     const analysis = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(analysisContent);
 
     // Update student record asynchronously (don't wait)
-    supabaseClient
+    serviceClient
       .from('students')
       .update({
         skill_gaps: analysis.skill_gaps || [],

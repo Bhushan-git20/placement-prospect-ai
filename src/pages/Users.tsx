@@ -95,15 +95,34 @@ export default function Users() {
 
   const updateUserRole = async (userId: string, newRole: 'admin' | 'faculty' | 'recruiter' | 'user') => {
     try {
-      // Delete existing role
-      await supabase.from('user_roles').delete().eq('user_id', userId);
-      
-      // Insert new role
+      // Prevent self-modification - admins should not change their own role
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && userId === user.id) {
+        toast({
+          title: "Cannot modify own role",
+          description: "Ask another admin to change your role to prevent accidental lockout.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Use atomic upsert instead of delete-then-insert to avoid race conditions
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role: newRole });
+        .upsert(
+          { user_id: userId, role: newRole },
+          { onConflict: 'user_id,role', ignoreDuplicates: false }
+        );
 
-      if (error) throw error;
+      if (error) {
+        // If upsert fails (due to unique constraint), try update approach
+        const { error: updateError } = await supabase
+          .from('user_roles')
+          .update({ role: newRole })
+          .eq('user_id', userId);
+        
+        if (updateError) throw updateError;
+      }
 
       toast({
         title: "Success",

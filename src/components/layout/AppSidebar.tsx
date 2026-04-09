@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, Users, Briefcase, BarChart3, BookOpen, MessageSquare, Settings, Database, Target, Award, LogOut, User, GraduationCap, Brain, UserCircle } from "lucide-react";
+import { Home, Users, Briefcase, BarChart3, BookOpen, MessageSquare, Settings, Database, Target, Award, LogOut, User, GraduationCap, Brain, UserCircle, FileText, ClipboardCheck, TrendingDown, Sparkles } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -86,6 +86,30 @@ const menuItems: MenuItem[] = [{
   icon: Database,
   roles: ["admin", "user"],
   color: "secondary"
+}, {
+  title: "Job Evaluation",
+  url: "/job-evaluation",
+  icon: ClipboardCheck,
+  roles: ["admin", "user"],
+  color: "success"
+}, {
+  title: "Resume Tailor",
+  url: "/resume-tailor",
+  icon: FileText,
+  roles: ["admin", "user"],
+  color: "cyan"
+}, {
+  title: "Interview Prep",
+  url: "/interview-prep",
+  icon: Sparkles,
+  roles: ["admin", "user"],
+  color: "pink"
+}, {
+  title: "Rejection Analysis",
+  url: "/rejection-analysis",
+  icon: TrendingDown,
+  roles: ["admin", "user"],
+  color: "warning"
 }];
 interface User {
   id: string;

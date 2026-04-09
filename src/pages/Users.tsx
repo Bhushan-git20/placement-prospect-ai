@@ -257,15 +257,13 @@ export default function Users() {
                       <TableCell>
                         <Select
                           value={profile.role}
-                          onValueChange={(value) => updateUserRole(profile.id, value as 'admin' | 'faculty' | 'recruiter' | 'user')}
+                          onValueChange={(value) => updateUserRole(profile.id, value as 'admin' | 'user')}
                         >
                           <SelectTrigger className="w-32">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="user">User</SelectItem>
-                            <SelectItem value="faculty">Faculty</SelectItem>
-                            <SelectItem value="recruiter">Recruiter</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
                           </SelectContent>
                         </Select>
@@ -308,18 +306,10 @@ export default function Users() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 rounded-lg border border-border bg-secondary/20">
               <Badge variant="outline" className="mb-2">User</Badge>
-              <p className="text-sm text-muted-foreground">Access to personal dashboard, assessments, and career coach</p>
-            </div>
-            <div className="p-4 rounded-lg border border-border bg-secondary/20">
-              <Badge variant="secondary" className="mb-2">Faculty</Badge>
-              <p className="text-sm text-muted-foreground">Manage students, conduct assessments, and access analytics</p>
-            </div>
-            <div className="p-4 rounded-lg border border-border bg-secondary/20">
-              <Badge variant="outline" className="mb-2">Recruiter</Badge>
-              <p className="text-sm text-muted-foreground">Search candidates, post jobs, and manage applications</p>
+              <p className="text-sm text-muted-foreground">Access to dashboard, assessments, career coach, job market, and analytics</p>
             </div>
             <div className="p-4 rounded-lg border border-border bg-secondary/20">
               <Badge variant="default" className="mb-2">Admin</Badge>

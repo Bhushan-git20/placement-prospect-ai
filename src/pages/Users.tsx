@@ -93,7 +93,7 @@ export default function Users() {
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: 'admin' | 'faculty' | 'recruiter' | 'user') => {
+  const updateUserRole = async (userId: string, newRole: 'admin' | 'user') => {
     try {
       // Prevent self-modification - admins should not change their own role
       const { data: { user } } = await supabase.auth.getUser();

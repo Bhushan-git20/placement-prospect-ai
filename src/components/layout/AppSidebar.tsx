@@ -18,7 +18,7 @@ const menuItems: MenuItem[] = [{
   title: "Dashboard",
   url: "/dashboard",
   icon: Home,
-  roles: ["admin", "faculty", "recruiter", "user"],
+  roles: ["admin", "user"],
   color: "primary"
 }, {
   title: "User Management",
@@ -30,7 +30,7 @@ const menuItems: MenuItem[] = [{
   title: "Student Profiles",
   url: "/students",
   icon: Users,
-  roles: ["admin", "faculty"],
+  roles: ["admin", "user"],
   color: "cyan"
 }, {
   title: "My Profile",
@@ -42,25 +42,25 @@ const menuItems: MenuItem[] = [{
   title: "Job Market",
   url: "/jobs",
   icon: Briefcase,
-  roles: ["recruiter"],
+  roles: ["admin", "user"],
   color: "orange"
 }, {
   title: "Skill Analytics",
   url: "/skills",
   icon: BarChart3,
-  roles: ["admin", "faculty"],
+  roles: ["admin", "user"],
   color: "success"
 }, {
   title: "Advanced Analytics",
   url: "/advanced-analytics",
   icon: Brain,
-  roles: ["admin", "faculty"],
+  roles: ["admin", "user"],
   color: "info"
 }, {
   title: "Practice Center",
   url: "/assessments",
   icon: BookOpen,
-  roles: ["admin", "faculty", "user"],
+  roles: ["admin", "user"],
   color: "pink"
 }, {
   title: "My Assessments",
@@ -78,13 +78,13 @@ const menuItems: MenuItem[] = [{
   title: "Candidate Search",
   url: "/candidates",
   icon: Target,
-  roles: ["admin", "recruiter"],
+  roles: ["admin", "user"],
   color: "warning"
 }, {
   title: "Data Management",
   url: "/data",
   icon: Database,
-  roles: ["admin", "faculty"],
+  roles: ["admin", "user"],
   color: "secondary"
 }];
 interface User {

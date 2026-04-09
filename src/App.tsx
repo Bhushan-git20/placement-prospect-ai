@@ -21,6 +21,10 @@ import NotFound from "./pages/NotFound";
 import MyAssessments from "./pages/MyAssessments";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import StudentProfile from "./pages/StudentProfile";
+import JobEvaluation from "./pages/JobEvaluation";
+import ResumeTailor from "./pages/ResumeTailor";
+import InterviewPrep from "./pages/InterviewPrep";
+import RejectionAnalysis from "./pages/RejectionAnalysis";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +51,10 @@ const App = () => (
               <Route path="/my-assessments" element={<MyAssessments />} />
               <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
               <Route path="/my-profile" element={<StudentProfile />} />
+              <Route path="/job-evaluation" element={<JobEvaluation />} />
+              <Route path="/resume-tailor" element={<ResumeTailor />} />
+              <Route path="/interview-prep" element={<InterviewPrep />} />
+              <Route path="/rejection-analysis" element={<RejectionAnalysis />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

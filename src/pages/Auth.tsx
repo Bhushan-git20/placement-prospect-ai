@@ -199,16 +199,8 @@ export default function Auth() {
       });
 
       if (data.user && !error) {
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({
-            user_id: data.user.id,
-            role: validatedData.role
-          });
-
-        if (roleError) {
-          console.error('Error assigning role:', roleError);
-        }
+        // Role is automatically assigned by database trigger (assign_default_role)
+        // No manual insert needed
       }
 
       if (error) {

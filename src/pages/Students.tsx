@@ -225,7 +225,7 @@ export default function Students() {
             Manage and track student profiles, placement readiness, and career progress
           </p>
         </div>
-        {(userRole === 'admin' || userRole === 'faculty') && <div className="flex gap-2 flex-wrap">
+        {userRole === 'admin' && <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={() => setShowMatchDialog(true)}>
               <GitMerge className="w-4 h-4 mr-2" />
               Match Students

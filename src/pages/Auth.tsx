@@ -29,7 +29,7 @@ const signUpSchema = z.object({
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/[0-9]/, "Password must contain at least one number"),
-  role: z.enum(["user", "faculty", "recruiter", "admin"]),
+  role: z.enum(["user", "admin"]),
 });
 
 const signInSchema = z.object({
@@ -77,7 +77,7 @@ export default function Auth() {
     full_name: "",
     email: "",
     password: "",
-    role: "user" as "user" | "faculty" | "recruiter" | "admin",
+    role: "user" as "user" | "admin",
   });
 
   useEffect(() => {
@@ -613,7 +613,7 @@ export default function Auth() {
                     </Label>
                     <Select
                       value={signUpForm.role}
-                      onValueChange={(value: "user" | "faculty" | "recruiter" | "admin") => 
+                      onValueChange={(value: "user" | "admin") => 
                         setSignUpForm(prev => ({ ...prev, role: value }))
                       }
                       disabled={isLoading}
@@ -623,8 +623,6 @@ export default function Auth() {
                       </SelectTrigger>
                       <SelectContent className="glass-card">
                         <SelectItem value="user">Student</SelectItem>
-                        <SelectItem value="faculty">Faculty</SelectItem>
-                        <SelectItem value="recruiter">Recruiter</SelectItem>
                         <SelectItem value="admin">Administrator</SelectItem>
                       </SelectContent>
                     </Select>

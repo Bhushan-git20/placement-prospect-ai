@@ -30,7 +30,7 @@ export const signUpSchema = z.object({
   full_name: nameSchema,
   email: emailSchema,
   password: passwordSchema,
-  role: z.enum(["user", "faculty", "recruiter", "admin"]),
+  role: z.enum(["user", "admin"]),
 });
 
 // Job posting schema

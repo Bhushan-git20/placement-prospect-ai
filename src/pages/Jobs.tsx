@@ -129,7 +129,7 @@ export default function Jobs() {
             Explore current job opportunities and market trends
           </p>
         </div>
-        {(userRole === 'admin' || userRole === 'recruiter') && <Button className="gradient-primary glow-hover" onClick={() => setShowAddDialog(true)}>
+        {userRole === 'admin' && <Button className="gradient-primary glow-hover" onClick={() => setShowAddDialog(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Post Job
           </Button>}

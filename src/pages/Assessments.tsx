@@ -147,7 +147,7 @@ export default function Assessments() {
               Start New Test
             </Button>
           )}
-          {(userRole === 'admin' || userRole === 'faculty') && (
+          {userRole === 'admin' && (
             <Button variant="outline" onClick={() => setShowCreateDialog(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Create Assessment

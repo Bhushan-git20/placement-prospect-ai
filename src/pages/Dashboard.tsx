@@ -354,8 +354,6 @@ export default function Dashboard() {
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
               {user?.role === 'user' && "Track your placement readiness and discover career opportunities with AI-powered insights."}
-              {user?.role === 'faculty' && "Monitor student progress and manage placement data with comprehensive analytics."}
-              {user?.role === 'recruiter' && "Find qualified candidates and manage your hiring process efficiently."}
               {user?.role === 'admin' && "Oversee the entire placement ecosystem with advanced analytics and insights."}
             </p>
             <div className="flex flex-wrap gap-3">
